@@ -16,6 +16,7 @@ class FSVRReader:
     next_line = 1
     next_frame = 0
     last_frame = {}
+    header_end = 0
     file = None
     header = {}
 
@@ -35,17 +36,30 @@ class FSVRReader:
             self.next_line = 1
             self.file_path = filename
             self.file = open(self.file_path, "r")
+            self.read_header()
 
     '''
     Reads file header, must be used first after initialization
     '''
-    def read_header(self, limit = 25):
+    def read_header(self, limit = 30):
+        if len(self.header) >0:
+            return False
         for i in range(limit):
             values = self.read_line().rstrip().split(";")
             self.header[values[0]] = values[1:]
             if values[0] == "Frame":
+                self.header_end = self.file.tell()
                 return True
         return False
+
+    '''
+    Reopens file to the position of first frame
+    '''
+    def reopen_file(self):
+        self.file.close()
+        self.file = open(self.file_path, "r")
+        self.file.seek(self.header_end)
+        return self.file
 
     '''
     Reads next data frame
@@ -54,7 +68,7 @@ class FSVRReader:
         frame = {}
         frame_data = {}
         # read the number provided by Values number in the header
-        for i in range(int(self.header['Values'][0])+2):
+        for i in range(int(self.header['Values'][0])+1):
             values = self.read_line().rstrip().split(";")
             # for the frame header data
             if values[0] in ['Frame', 'Timestamp']:
