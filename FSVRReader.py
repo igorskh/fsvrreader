@@ -47,7 +47,7 @@ class FSVRReader:
         for i in range(limit):
             values = self.read_line().rstrip().split(";")
             self.header[values[0]] = values[1:]
-            if values[0] == "Frame":
+            if values[0] == "Frames":
                 self.header_end = self.file.tell()
                 return True
         return False
