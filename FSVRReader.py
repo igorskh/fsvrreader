@@ -19,9 +19,6 @@ class FSVRReader:
     file = None
     header = {}
 
-    threshold = 0
-    filter = []
-
     '''
     Read one line of a file, increases a next_line counter
     '''
@@ -80,6 +77,9 @@ class FSVRReader:
 
         return frame
 
+    '''
+    Plots the last data frame points
+    '''
     def plot_frame(self, frame={}):
         if len(frame) == 0:
             frame = self.last_frame
@@ -89,5 +89,5 @@ class FSVRReader:
         #value = datetime.datetime.fromtimestamp(frame['Timestamp'])
         #print(frame['Timestamp'], value.strftime("%d.%b %yT%H:%M:%S.%f"), frame['Date']+"T"+frame['Time'])
         plt.title(frame['Date']+" "+ frame['Time'] + " " +str(frame['Timestamp']) +" " +  " Frame #"+ frame['Frame'])
-        plt.savefig("test.png")
+        plt.savefig("figure"+str(frame['Frame'])+".png")
         plt.clf()
