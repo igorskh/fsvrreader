@@ -90,3 +90,4 @@ class FSVRReader:
         #print(frame['Timestamp'], value.strftime("%d.%b %yT%H:%M:%S.%f"), frame['Date']+"T"+frame['Time'])
         plt.title(frame['Date']+" "+ frame['Time'] + " " +str(frame['Timestamp']) +" " +  " Frame #"+ frame['Frame'])
         plt.savefig("test.png")
+        plt.clf()

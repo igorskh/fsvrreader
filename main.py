@@ -25,6 +25,14 @@ def time_delta_eval(reader, n=10):
     return time_delta
 
 
+def time_delta_plot(n=10):
+    td = time_delta_eval(reader, 35)
+    plt.plot(td, "ro")
+    plt.xlabel("Frame")
+    plt.ylabel("Time Difference")
+    plt.savefig("time_delta_eval"+str(n)+".png")
+    plt.clf()
+
 if __name__ == '__main__':
     reader = FSVRReader("252MKS_001.DAT")
     reader.threshold = -75
@@ -35,11 +43,5 @@ if __name__ == '__main__':
     # 35
     # 39 empty
     # evaluate time difference
-    td = time_delta_eval(reader,35)
-    #
-    # plt.plot(td, "ro")
-    # plt.xlabel("Frame")
-    # plt.ylabel("Time Difference")
-    # plt.savefig("time_delta_eval.png")
-
+    time_delta_plot(35)
     reader.plot_frame()
