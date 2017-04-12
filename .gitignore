@@ -1,0 +1,5 @@
+*.DAT
+*.pdf
+*.png
+__pycache__
+.idea/*
