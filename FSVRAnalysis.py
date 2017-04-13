@@ -116,20 +116,27 @@ class FSVRAnalysis:
         self.reader.reopen_file()
         result = []
         plt.plot([self.threshold for i in range(n)], 'b-')
+        start_ts = 0
+        end_ts = 0
         # go though the data points
         for i in range(n+1):
             self.reader.read_frame()
+            if i == 0:
+                start_ts = self.reader.last_frame['Timestamp']
+            elif i == n:
+                end_ts = self.reader.last_frame['Timestamp']
             result.append(sum(self.reader.last_frame['Data'].values())/len(self.reader.last_frame['Data']))
-        return result
+        return (result, start_ts, end_ts)
 
     '''
     '''
     def avg_values_plot(self, n=10):
-        vals = self.avg_values(n)
-        plt.plot(vals, 'ro')
+        avg_eval = self.avg_values(n)
+
+        plt.plot(avg_eval[0], 'ro')
         plt.xlabel('Data frame')
         plt.ylabel(self.reader.header['y-Unit'][0])
-        plt.title("")
+        plt.title(str(avg_eval[1]) + " " + str(avg_eval[2]) + " " + str(avg_eval[1]-avg_eval[2])+" s")
         plt.savefig("avg"+str(n)+".png")
         plt.clf()
 
