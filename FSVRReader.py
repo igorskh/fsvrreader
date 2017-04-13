@@ -45,6 +45,28 @@ class FSVRReader:
                 self.swt_mlt = 1
 
     '''
+    Returns axis units
+    '''
+    def get_axis_units(self):
+        return self.header['x-Unit'][0], self.header['y-Unit'][0]
+
+    '''
+    :return int number of data frames
+    '''
+    def get_data_frames_amount(self):
+        return int(self.header['Frames'][0])
+
+    ''' 
+    :return int last frame'''
+    def get_last_frame(self):
+        return self.last_frame
+
+    '''
+    :return float sweep time'''
+    def get_sweep_time(self):
+        return float(self.header['SWT'][0])
+
+    '''
     Reads file header, must be used first after initialization
     '''
     def read_header(self, limit = 30):

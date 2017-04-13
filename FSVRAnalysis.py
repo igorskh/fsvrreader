@@ -6,7 +6,6 @@ Analysis module for R&S FSVR Signal Analyzer DAT files
 
 April 2017
 """
-from FSVRReader import FSVRReader
 import matplotlib.pyplot as plt
 
 
@@ -35,12 +34,12 @@ class FSVRAnalysis:
     Sets number of points to analyze
     '''
     def set_data_points(self, value):
-        if value < int(self.reader.header['Frames'][0]):
+        if value < int(self.reader.get_data_frames_amount()):
             self.data_points = value
         else:
             # TODO: throw error not enough points
-            print("Only "+self.reader.header['Frames'][0]+' data frame(s) are available' )
-            self.data_points = int(self.reader.header['Frames'][0])-1
+            print("Only "+str(self.reader.get_data_frames_amount())+' data frame(s) are available' )
+            self.data_points = int(self.reader.get_data_frames_amount())-1
 
     '''
     Gets basic info
@@ -55,13 +54,13 @@ class FSVRAnalysis:
         for i in range(self.data_points+1):
             self.reader.read_frame()
             if i == 0:
-                self.end_ts = self.reader.last_frame['Timestamp']
+                self.end_ts = self.reader.get_last_frame()['Timestamp']
                 # get frequency boundaries
-                keys = list(self.reader.last_frame['Data'].keys())
+                keys = list(self.reader.get_last_frame()['Data'].keys())
                 self.freq = keys[int(round(len(keys)/2,0))]
                 self.f_span = abs(keys[0] - keys[len(keys)-1])
             elif i == self.data_points:
-                self.start_ts = self.reader.last_frame['Timestamp']
+                self.start_ts = self.reader.get_last_frame()['Timestamp']
         self.duration = round(self.end_ts - self.start_ts,3)
         return True
 
@@ -69,9 +68,9 @@ class FSVRAnalysis:
     Evaluates time differences between data frames
     '''
     def time_delta_eval(self):
-        """
-        Evaluates delta time between frames
-        """
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
         time_delta = []
         last_time = 0
         for i in range(self.data_points+1):
@@ -79,8 +78,8 @@ class FSVRAnalysis:
             if i == 0:
                 time_delta.append(0)
             else:
-                time_delta.append(last_time - self.reader.last_frame['Timestamp'])
-            last_time = self.reader.last_frame['Timestamp']
+                time_delta.append(last_time - self.reader.get_last_frame()['Timestamp'])
+            last_time = self.reader.get_last_frame()['Timestamp']
 
         return time_delta
 
@@ -88,13 +87,16 @@ class FSVRAnalysis:
     Plots time differences between data frames
     '''
     def time_delta_plot(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
         # start from the 0 frame
         self.reader.reopen_file()
         td = self.time_delta_eval()
         plt.plot(td, "ro")
         plt.xlabel("Frame")
         plt.ylabel("Time Difference")
-        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.header['x-Unit'][0])
+        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.get_axis_units()[0])
         plt.savefig("time_delta_eval" + str(self.data_points) + ".png")
         plt.clf()
 
@@ -102,6 +104,9 @@ class FSVRAnalysis:
     Evaluates data using filter mask, several values of filters are averaged 
     '''
     def filtering_statistic_analyze(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
         result = []
         # go though the data points
         for i in range(self.data_points+1):
@@ -109,7 +114,7 @@ class FSVRAnalysis:
             # calculate average value over filtered frequencies
             avg = 0
             for filter_val in self.filter_mask:
-                avg += self.reader.last_frame['Data'][filter_val]
+                avg += self.reader.get_last_frame()['Data'][filter_val]
             avg = avg / len(self.filter_mask)
             result.append(avg)
         return result
@@ -118,6 +123,9 @@ class FSVRAnalysis:
     Plots filtered values statistic
     '''
     def filtering_statistic_plot(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
         # start from the 0 frame
         self.reader.reopen_file()
         # get filtering statistic
@@ -135,14 +143,17 @@ class FSVRAnalysis:
     Gets maximum value of data frames
     '''
     def max_values(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
         # start from the 0 frame
         self.reader.reopen_file()
         result = {}
         # go though the data points
         for i in range(self.data_points+1):
             self.reader.read_frame()
-            vals = list(self.reader.last_frame['Data'].values())
-            keys = list(self.reader.last_frame['Data'].keys())
+            vals = list(self.reader.get_last_frame()['Data'].values())
+            keys = list(self.reader.get_last_frame()['Data'].keys())
             # get the max value over the last data frame
             max_val = max(vals)
             # get the index of max value
@@ -154,6 +165,9 @@ class FSVRAnalysis:
     Find values over threshold
     '''
     def values_over_threshold(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
         # get max values over the frames
         max_vals = self.max_values()
         result = {}
@@ -167,20 +181,26 @@ class FSVRAnalysis:
     Average values
     '''
     def avg_values(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to do take an average")
+            return False
         # start from the 0 frame
         self.reader.reopen_file()
         result = []
         # go though the data points
         for i in range(self.data_points+1):
             self.reader.read_frame()
-            cnt = len(self.reader.last_frame['Data'])
-            result.append(sum(list(self.reader.last_frame['Data'].values()))/cnt)
+            cnt = len(self.reader.get_last_frame()['Data'])
+            result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
         return result
 
     '''
     Plots averaged values over the data frames
     '''
     def avg_values_plot(self):
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to do take an average")
+            return False
         # get averaged values
         avg_eval = self.avg_values()
 
@@ -189,7 +209,7 @@ class FSVRAnalysis:
 
         fig = plt.figure()
         # set plot title
-        fig.suptitle('Carrier = '+str(self.freq)+" "+self.reader.header['x-Unit'][0], fontsize=14, fontweight='bold')
+        fig.suptitle('Carrier = '+str(self.freq)+" "+self.reader.get_axis_units()[0], fontsize=14, fontweight='bold')
         ax = fig.add_subplot(111)
         fig.subplots_adjust(top=0.9)
         # plot averaged levels
@@ -198,7 +218,7 @@ class FSVRAnalysis:
         ax.plot([self.threshold for i in range(self.data_points)], 'b-')
         # set axis labels
         ax.set_xlabel('Data frame')
-        ax.set_ylabel(self.reader.header['y-Unit'][0])
+        ax.set_ylabel(self.reader.get_axis_units()[1])
         # get axis information
         axis = fig.gca()
         # draw legend
@@ -206,8 +226,8 @@ class FSVRAnalysis:
         xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
         ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.18*yr,
                 'Duration = '+ str(self.duration)+" s\n" +
-                'Sweep time = ' + str(self.reader.header['SWT'][0])+" s\n" +
-                "F span = " + str(self.f_span) + " "+self.reader.header['x-Unit'][0] +'\n' +
+                'Sweep time = ' + str(self.reader.get_sweep_time())+" s\n" +
+                "F span = " + str(self.f_span) + " "+self.reader.get_axis_units()[0] +'\n' +
                 'Ratio = ' + str(occupation_ratio) + '%',
                 style='italic', bbox={'facecolor': 'blue', 'alpha': 0.3, 'pad': 5})
         # save plot
@@ -220,20 +240,20 @@ class FSVRAnalysis:
     '''
     def last_frame_plot(self):
         # get last frame data
-        frame = self.reader.last_frame
+        frame = self.reader.get_last_frame()
         fig = plt.figure()
-        fig.suptitle('Frame #'+str(frame['Frame']) + ' at ' + str(frame['Time']), fontsize=14, fontweight='bold')
+        fig.suptitle('Frame #'+str(frame['Frame']) + ' at ' + str(frame['Timestamp']), fontsize=14, fontweight='bold')
         ax = fig.add_subplot(111)
         fig.subplots_adjust(top=0.9)
         ax.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
         # set axis labels
-        ax.set_xlabel(self.reader.header['x-Unit'][0])
-        ax.set_ylabel(self.reader.header['y-Unit'][0])
+        ax.set_xlabel(self.reader.get_axis_units()[0])
+        ax.set_ylabel(self.reader.get_axis_units()[1])
         axis = fig.gca()
         yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
         xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
         ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.06*yr,
-                'Carrier = '+str(self.freq)+" "+self.reader.header['x-Unit'][0],
+                'Carrier = '+str(self.freq)+" "+self.reader.get_axis_units()[0],
                 style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
         plt.savefig("figure" + str(frame['Frame']) + ".png")
         plt.clf()
@@ -250,5 +270,5 @@ class FSVRAnalysis:
     '''
     Initialize analysis
     '''
-    def __init__(self, filename):
-        self.reader = FSVRReader(filename)
+    def __init__(self, reader):
+        self.reader = reader
