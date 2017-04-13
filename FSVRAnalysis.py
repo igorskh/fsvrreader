@@ -11,30 +11,51 @@ import matplotlib.pyplot as plt
 
 
 class FSVRAnalysis:
-    reader = None
-    threshold = 0
-    filter_mask = []
-    # number of points to be analysed
-    data_points = 10
-    # frequency span
-    f_span = None
-    # central frequency
-    freq = None
-    # start and end timestamp
-    start_ts = None
-    end_ts = None
-    # analysis duration
-    duration = None
+    """
+    Module for analysis basically channel occupation
+    """
+    reader = None  #: object: dump file reader object from external class
+    threshold = 0.0  #: float: threshold level for analysis
+    filter_mask = []  #: list: which frequencies will be used for analysis
+    data_points = 10  #: int: number of points to be analysed
+    f_span = 0.0  #: float: frequency span
+    freq = 0.0  #: float: central frequency
+    start_ts = 0.0  #: float: start timestamp
+    end_ts = 0.0  #: float: end timestamp
+    duration = 0.0  #: float: sample duration from the first to the last data frame
 
-    '''
-    '''
+    @property
+    def get_threshold(self):
+        """
+        Returns threshold
+        :return: float: current threshold
+        """
+        return self.threshold
+
+    @property
+    def get_data_points(self):
+        """
+        Return number of points for analysis
+        :return: 
+            int: number of points for analysis
+        """
+        return self.data_points
+
     def set_threshold(self, value):
+        """
+        Sets a threshold level
+        :param value: float: threshold level
+        :return: 
+        """
         self.threshold = value
 
-    '''
-    Sets number of points to analyze
-    '''
     def set_data_points(self, value):
+        """
+        Sets number of points to analyze, if number of points more than available,
+        method will set the maximum available number of points
+        :param value: int; number of point to analyze
+        :return: 
+        """
         if value < int(self.reader.get_data_frames_amount()):
             self.data_points = value
         else:
@@ -42,10 +63,12 @@ class FSVRAnalysis:
             print("Only "+str(self.reader.get_data_frames_amount())+' data frame(s) are available' )
             self.data_points = int(self.reader.get_data_frames_amount())-1
 
-    '''
-    Gets basic info
-    '''
     def get_info(self):
+        """
+        Calculates basic info, start and end timestamp, sample duration,
+        central frequency and a frequency span
+        :return: bool: True if successful, False otherwise.
+        """
         # start from the 0 frame
         self.reader.reopen_file()
         # start and end timestamp
@@ -65,10 +88,11 @@ class FSVRAnalysis:
         self.duration = round(self.end_ts - self.start_ts,3)
         return True
 
-    '''
-    Evaluates time differences between data frames
-    '''
     def time_delta_eval(self):
+        """
+        Evaluates differences between each two data frames
+        :return: list: delta time
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
@@ -81,13 +105,13 @@ class FSVRAnalysis:
             else:
                 time_delta.append(last_time - self.reader.get_last_frame()['Timestamp'])
             last_time = self.reader.get_last_frame()['Timestamp']
-
         return time_delta
 
-    '''
-    Plots time differences between data frames
-    '''
     def time_delta_plot(self):
+        """
+        Plots the differences between each two data frames using time_delta_eval() method
+        :return: 
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
@@ -101,10 +125,11 @@ class FSVRAnalysis:
         plt.savefig("time_delta_eval" + str(self.data_points) + ".png")
         plt.clf()
 
-    '''
-    Evaluates data using filter mask, several values of filters are averaged 
-    '''
     def filtering_statistic_analyze(self):
+        """
+        Evaluates filtered values of data frames over time
+        :return: list: filtered values
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
@@ -120,10 +145,11 @@ class FSVRAnalysis:
             result.append(avg)
         return result
 
-    '''
-    Plots filtered values statistic
-    '''
     def filtering_statistic_plot(self):
+        """
+        Plots filtered values statistic
+        :return: 
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
@@ -140,10 +166,11 @@ class FSVRAnalysis:
         plt.savefig("threshold_statistic" + str(self.data_points) + ".png")
         plt.clf()
 
-    '''
-    Gets maximum value of data frames
-    '''
     def max_values(self):
+        """
+        Gets maximum value of data frames
+        :return: dict: maximum level in all data frames {f1: l1, ..., fn: ln}
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
@@ -162,10 +189,11 @@ class FSVRAnalysis:
             result[keys[max_idx]] = max_val
         return result
 
-    '''
-    Find values over threshold
-    '''
     def values_over_threshold(self):
+        """
+        Find which maximum values are greater than a threshold
+        :return: dict: maximum values greater than a threshold for all data frames
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
@@ -178,10 +206,11 @@ class FSVRAnalysis:
                 result[key] = val
         return result
 
-    '''
-    Average values
-    '''
     def avg_values(self):
+        """
+        Find average over the all data frame values
+        :return: list: averaged values for all data frames
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to do take an average")
             return False
@@ -195,10 +224,11 @@ class FSVRAnalysis:
             result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
         return result
 
-    '''
-    Plots averaged values over the data frames
-    '''
     def avg_values_plot(self):
+        """
+        Plots averaged values over the data frames
+        :return: 
+        """
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to do take an average")
             return False
@@ -236,10 +266,11 @@ class FSVRAnalysis:
         # clear plot
         plt.clf()
 
-    '''
-    Plots last frame
-    '''
     def last_frame_plot(self):
+        """
+        Plots on the graph the last frame
+        :return: 
+        """
         # get last frame data
         frame = self.reader.get_last_frame()
         fig = plt.figure()
@@ -259,8 +290,11 @@ class FSVRAnalysis:
         plt.savefig("figure" + str(frame['Frame']) + ".png")
         plt.clf()
 
-    '''Plots set self.data_points frame'''
     def frame_plot(self):
+        """
+        Plots set self.data_points frame
+        :return: 
+        """
         # start from the 0 frame
         self.reader.reopen_file()
         # go though the data points
