@@ -3,6 +3,8 @@ Author: Igor Kim
 E-mail: igor.skh@gmail.com
 
 Reader module for R&S FSVR Signal Analyzer
+
+April 2017
 """
 
 import os.path
@@ -40,7 +42,7 @@ class FSVRReader:
             self.file = open(self.file_path, "r")
             self.read_header()
             self.header['SWT'][0] = float(self.header['SWT'][0])
-            if (self.header['SWT'][0] < 0.001):
+            if self.header['SWT'][0] < 0.001:
                 self.swt_mlt = 1
 
     '''
@@ -84,6 +86,7 @@ class FSVRReader:
                     #12.Apr 17;17:55:58.470
                     # TODO: milliseconds do not saved in a timestamp format
                     frame['Timestamp'] = time.mktime(datetime.datetime.strptime(frame['Date']+"T"+frame['Time'], "%d.%b %yT%H:%M:%S.%f").timetuple())
+                    frame['Timestamp'] += float(frame['Time'][-4:])
                 else:
                     frame[values[0]] = values[1]
             # for values
