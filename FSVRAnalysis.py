@@ -98,6 +98,42 @@ class FSVRAnalysis:
         return result
 
     '''
+    Find values over threshold
+    '''
+    def values_over_threshold(self, n=10):
+        max_vals = self.max_values(n)
+        result = {}
+        for key, val in max_vals.items():
+            if val >= self.threshold:
+                result[key] = val
+        return result
+
+    '''
+    Average values
+    '''
+    def avg_values(self, n=10):
+        # start from the 0 frame
+        self.reader.reopen_file()
+        result = []
+        plt.plot([self.threshold for i in range(n)], 'b-')
+        # go though the data points
+        for i in range(n+1):
+            self.reader.read_frame()
+            result.append(sum(self.reader.last_frame['Data'].values())/len(self.reader.last_frame['Data']))
+        return result
+
+    '''
+    '''
+    def avg_values_plot(self, n=10):
+        vals = self.avg_values(n)
+        plt.plot(vals, 'ro')
+        plt.xlabel('Data frame')
+        plt.ylabel(self.reader.header['y-Unit'][0])
+        plt.title("")
+        plt.savefig("avg"+str(n)+".png")
+        plt.clf()
+
+    '''
     Plots last frame
     '''
     def last_frame_plot(self):

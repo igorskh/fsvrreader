@@ -20,7 +20,7 @@ class FSVRReader:
     header = {}
     # sweep time multiplier
     # TODO: sweep time usage works incorrectly
-    swt_mlt = 0
+    # swt_mlt = 0
 
     '''
     Read one line of a file, increases a next_line counter
@@ -84,14 +84,6 @@ class FSVRReader:
                     #12.Apr 17;17:55:58.470
                     # TODO: milliseconds do not saved in a timestamp format
                     frame['Timestamp'] = time.mktime(datetime.datetime.strptime(frame['Date']+"T"+frame['Time'], "%d.%b %yT%H:%M:%S.%f").timetuple())
-                    swt_add = self.header['SWT'][0]*self.swt_mlt
-                    if swt_add >= 0.001 or frame['Frame'] == '0':
-                        swt_add = 0
-                        self.swt_mlt = 1
-                    else:
-                        self.swt_mlt += 1
-                    # temporary fix
-                    frame['Timestamp'] += float(frame['Time'][-4:]) - swt_add
                 else:
                     frame[values[0]] = values[1]
             # for values
