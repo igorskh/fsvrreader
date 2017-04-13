@@ -13,59 +13,69 @@ import datetime
 
 
 class FSVRReader:
-    # path to the file
-    file_path = ""
-    # last data frame data
-    last_frame = {}
-    # pointer where the header ends
-    header_end = 0
-    # file object
-    file = None
-    # header dictionary
-    header = {}
+    """
+    Reader module implementation for reading R&S FSVR Signal Analyzer dump files
+    """
+    file_path = ""  #: object: path to the file
+    last_frame = {}  #: dict: last data frame data
+    header_end = 0  #: int: byte where the header ends
+    file = None  #: object: file object
+    header = {}  #: dict: header dictionary
 
-    '''
-    Read one line of a file
-    '''
-    def read_line(self):
-        result = self.file.readline()
-        return result
-
-    '''
-    Init function, inits file
-    '''
     def __init__(self, filename):
+        """
+        :param filename: path to the dat file
+        """
         if os.path.isfile(filename):
             self.file_path = filename
             self.file = open(self.file_path, "r")
             self.read_header()
 
-    '''
-    :return tuple (x unit,y unit)
-    '''
+    def read_line(self):
+        """
+        Reads next line of the file
+        :return: 
+            str: line data
+        """
+        result = self.file.readline()
+        return result
+
     def get_axis_units(self):
+        """
+        :return: 
+            tuple: (x unit,y unit)
+        """
         return self.header['x-Unit'][0], self.header['y-Unit'][0]
 
-    '''
-    :return int number of data frames
-    '''
     def get_data_frames_amount(self):
+        """
+        :returns: 
+            int: number of data frames
+        """
         return int(self.header['Frames'][0])
 
-    ''' 
-    :return int last frame'''
     def get_last_frame(self):
+        """
+        :returns: 
+            object: last frame object
+        """
         return self.last_frame
 
-    '''
-    :return float sweep time'''
     def get_sweep_time(self):
+        """
+        Returns sweep time got from a header
+        :returns: 
+            float: sweep time
+        """
         return float(self.header['SWT'][0])
 
-    '''
-    Reads file header, must be used first after initialization
-    '''
     def read_header(self, limit=30):
+        """
+        Reads file header, must be used first after initialization
+        :param limit: max lines for header
+        :returns:
+            bool: True if successful, False otherwise.
+        """
         for i in range(limit):
             values = self.read_line().rstrip().split(";")
             self.header[values[0]] = values[1:]
@@ -75,19 +85,22 @@ class FSVRReader:
                 return True
         return False
 
-    '''
-    Reopens file to the position of first frame
-    '''
     def reopen_file(self):
+        """ Reopens file to the position of first frame, skips header
+        :returns:
+            object: File object
+        """
         self.file.close()
         self.file = open(self.file_path, "r")
         self.file.seek(self.header_end)
         return self.file
 
-    '''
-    Reads next data frame
-    '''
     def read_frame(self):
+        """
+        
+        :returns:
+            dict: frame data
+        """
         frame = {}
         frame_data = {}
         # read the number provided by Values number in the header
