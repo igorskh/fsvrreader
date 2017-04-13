@@ -302,8 +302,8 @@ class FSVRAnalysis:
             self.reader.read_frame()
         self.last_frame_plot()
 
-    '''
-    Initialize analysis
-    '''
     def __init__(self, reader):
+        """
+        :param reader: reader object from an external module
+        """
         self.reader = reader
