@@ -11,4 +11,4 @@ This python modules are developed for analysing dump files of spectrum analyser 
 ###  Following keys of *last_frame* variable are used: ### 
 * last_frame['Timestamp'] - timestamp of the last timeframe
 * last_frame['Data'] - contains dictionary, where keys are frequencies and values are levels {f1:l1, f2:l2, f3: l3}
-### If something is missing, it is recommended to create an empty variables. However, if *header['Frames'][0]* is less than 2, *header['SWT'][0]* is not necessary. ###
+### If something is missing, it is recommended to create an empty variable. However, if *header['Frames'][0]* is less than 2, *header['SWT'][0]* is not necessary. ###
