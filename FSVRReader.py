@@ -8,7 +8,6 @@ April 2017
 """
 
 import os.path
-import time
 import datetime
 
 
