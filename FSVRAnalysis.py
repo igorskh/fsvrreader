@@ -17,14 +17,30 @@ class FSVRAnalysis:
     # number of points to be analysed
     data_points = 10
     # frequency span
-    f_span = 0
+    f_span = None
     # central frequency
-    freq = 0
+    freq = None
     # start and end timestamp
-    start_ts = 0
-    end_ts = 0
+    start_ts = None
+    end_ts = None
     # analysis duration
-    duration = 0
+    duration = None
+
+    '''
+    '''
+    def set_threshold(self, value):
+        self.threshold = value
+
+    '''
+    Sets number of points to analyze
+    '''
+    def set_data_points(self, value):
+        if value < int(self.reader.header['Frames'][0]):
+            self.data_points = value
+        else:
+            # TODO: throw error not enough points
+            print("Only "+self.reader.header['Frames'][0]+' data frame(s) are available' )
+            pass
 
     '''
     Gets basic info
@@ -165,28 +181,59 @@ class FSVRAnalysis:
     Plots averaged values over the data frames
     '''
     def avg_values_plot(self):
+        # get averaged values
         avg_eval = self.avg_values()
-        plt.plot([self.threshold for i in range(self.data_points)], 'b-')
-        plt.plot(avg_eval, 'ro')
-        plt.xlabel('Data frame')
-        plt.ylabel(self.reader.header['y-Unit'][0])
-        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.header['x-Unit'][0])
-        plt.savefig("avg"+str(self.data_points)+".png")
+        fig = plt.figure()
+        # set plot title
+        fig.suptitle('Carrier = '+str(self.freq)+" "+self.reader.header['x-Unit'][0], fontsize=14, fontweight='bold')
+        ax = fig.add_subplot(111)
+        fig.subplots_adjust(top=0.9)
+        # plot averaged levels
+        ax.plot(avg_eval, 'ro')
+        # plot horizontal threshold line
+        ax.plot([self.threshold for i in range(self.data_points)], 'b-')
+        # set axis labels
+        ax.set_xlabel('Data frame')
+        ax.set_ylabel(self.reader.header['y-Unit'][0])
+        # get axis information
+        axis = fig.gca()
+        # draw legend
+        yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
+        xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
+        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.12*yr,
+                'Duration = '+ str(self.duration)+" s\n" +
+                'Sweep time = ' + str(self.reader.header['SWT'][0])+" s",
+                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
+        # save plot
+        plt.savefig("avg" + str(self.data_points) + ".png")
+        # clear plot
         plt.clf()
+
 
     '''
     Plots last frame
     '''
     def last_frame_plot(self):
+        # get last frame data
         frame = self.reader.last_frame
-        plt.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
-        plt.xlabel(self.reader.header['x-Unit'][0])
-        plt.ylabel(self.reader.header['y-Unit'][0])
-        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.header['x-Unit'][0])
-        plt.savefig("figure"+str(frame['Frame'])+".png")
+        fig = plt.figure()
+        fig.suptitle('Frame #'+str(frame['Frame']) + ' at ' + str(frame['Time']), fontsize=14, fontweight='bold')
+        ax = fig.add_subplot(111)
+        fig.subplots_adjust(top=0.9)
+        ax.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
+        # set axis labels
+        ax.set_xlabel(self.reader.header['x-Unit'][0])
+        ax.set_ylabel(self.reader.header['y-Unit'][0])
+        axis = fig.gca()
+        yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
+        xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
+        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.06*yr,
+                'Carrier = '+str(self.freq)+" "+self.reader.header['x-Unit'][0],
+                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
+        plt.savefig("figure" + str(frame['Frame']) + ".png")
         plt.clf()
 
-    '''Shows frame'''
+    '''Plots set self.data_points frame'''
     def frame_plot(self):
         # start from the 0 frame
         self.reader.reopen_file()
