@@ -22,7 +22,7 @@ class FSVRAnalysis:
         """
         time_delta = []
         last_time = 0
-        for i in range(n):
+        for i in range(n+1):
             self.reader.read_frame()
             if i == 0:
                 time_delta.append(0)
@@ -68,7 +68,7 @@ class FSVRAnalysis:
     def filtering_statistic_analyze(self, n=10):
         result = []
         # go though the data points
-        for i in range(n):
+        for i in range(n+1):
             self.reader.read_frame()
             # calculate average value over filtered frequencies
             avg = 0
@@ -86,7 +86,7 @@ class FSVRAnalysis:
         self.reader.reopen_file()
         result = {}
         # go though the data points
-        for i in range(n):
+        for i in range(n+1):
             self.reader.read_frame()
             vals = list(self.reader.last_frame['Data'].values())
             keys = list(self.reader.last_frame['Data'].keys())
@@ -103,7 +103,7 @@ class FSVRAnalysis:
         # start from the 0 frame
         self.reader.reopen_file()
         # go though the data points
-        for i in range(n):
+        for i in range(n+1):
             self.reader.read_frame()
         self.reader.plot_frame()
 
