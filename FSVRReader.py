@@ -73,7 +73,7 @@ class FSVRReader:
         frame = {}
         frame_data = {}
         # read the number provided by Values number in the header
-        for i in range(int(self.header['Values'][0])+1):
+        for i in range(int(self.header['Values'][0])+2):
             values = self.read_line().rstrip().split(";")
             # for the frame header data
             if values[0] in ['Frame', 'Timestamp']:
@@ -89,7 +89,7 @@ class FSVRReader:
             # for values
             else:
                 frame_data[float(values[0])] = float(values[1])
-        self.last_frame = frame
         frame['Data'] = frame_data
+        self.last_frame = frame
 
         return frame
