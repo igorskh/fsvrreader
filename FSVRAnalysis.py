@@ -61,7 +61,7 @@ class FSVRAnalysis:
             self.data_points = value
         else:
             self.data_points = int(self.reader.get_data_frames_amount()) - 1
-            print("Only " + str(self.data_points) + " data frame(s) are available, was set to this")
+            warnings.warn("Only " + str(self.data_points) + " data frame(s) are available, was set to this")
 
     def get_info(self):
         """
@@ -255,12 +255,12 @@ class FSVRAnalysis:
         # draw legend
         yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
         xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
-        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.18*yr,
+        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[0]+0.06*yr,
                 'Duration = '+ str(self.duration)+" s\n" +
                 'Sweep time = ' + str(self.reader.get_sweep_time())+" s\n" +
                 "F span = " + str(self.f_span) + " "+self.reader.get_axis_units()[0] +'\n' +
                 'Ratio = ' + str(occupation_ratio) + '%',
-                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.3, 'pad': 5})
+                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.6, 'pad': 5})
         # save plot
         plt.savefig("avg" + str(self.data_points) + ".png")
         # clear plot
