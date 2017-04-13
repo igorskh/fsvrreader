@@ -9,7 +9,8 @@ April 2017
 from FSVRAnalysis import FSVRAnalysis
 
 analyzer = FSVRAnalysis("../dat/252MKS_001.DAT")
-analyzer.data_points = 100
-analyzer.threshold = -75
+analyzer.set_data_points(34)
+analyzer.set_threshold(-75)
 analyzer.get_info()
+analyzer.last_frame_plot()
 analyzer.avg_values_plot()
