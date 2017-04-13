@@ -3,6 +3,8 @@ Author: Igor Kim
 E-mail: igor.skh@gmail.com
 
 Analysis module for R&S FSVR Signal Analyzer DAT files
+
+April 2017
 """
 from FSVRReader import FSVRReader
 import matplotlib.pyplot as plt
@@ -12,17 +14,51 @@ class FSVRAnalysis:
     reader = None
     threshold = 0
     filter_mask = []
+    # number of points to be analysed
+    data_points = 10
+    # frequency span
+    f_span = 0
+    # central frequency
+    freq = 0
+    # start and end timestamp
+    start_ts = 0
+    end_ts = 0
+    # analysis duration
+    duration = 0
+
+    '''
+    Gets basic info
+    '''
+    def get_info(self):
+        # start from the 0 frame
+        self.reader.reopen_file()
+        # start and end timestamp
+        self.start_ts = 0
+        self.end_ts = 0
+        # go though the data points
+        for i in range(self.data_points+1):
+            self.reader.read_frame()
+            if i == 0:
+                self.end_ts = self.reader.last_frame['Timestamp']
+                # get frequency boundaries
+                keys = list(self.reader.last_frame['Data'].keys())
+                self.freq = keys[int(round(len(keys)/2,0))]
+                self.f_span = keys[0] - keys[len(keys)-1]
+            elif i == self.data_points:
+                self.start_ts = self.reader.last_frame['Timestamp']
+        self.duration = round(self.end_ts - self.start_ts,3)
+        return True
 
     '''
     Evaluates time differences between data frames
     '''
-    def time_delta_eval(self, n=10):
+    def time_delta_eval(self):
         """
         Evaluates delta time between frames
         """
         time_delta = []
         last_time = 0
-        for i in range(n+1):
+        for i in range(self.data_points+1):
             self.reader.read_frame()
             if i == 0:
                 time_delta.append(0)
@@ -35,40 +71,23 @@ class FSVRAnalysis:
     '''
     Plots time differences between data frames
     '''
-    def time_delta_plot(self, n=10):
+    def time_delta_plot(self):
         # start from the 0 frame
         self.reader.reopen_file()
-        td = self.time_delta_eval(n)
+        td = self.time_delta_eval()
         plt.plot(td, "ro")
         plt.xlabel("Frame")
         plt.ylabel("Time Difference")
-        plt.savefig("time_delta_eval" + str(n) + ".png")
-        plt.clf()
-
-    '''
-    Plots filtered values statistic
-    '''
-    def filtering_statistic_plot(self, n=10):
-        # start from the 0 frame
-        self.reader.reopen_file()
-        # get filtering statistic
-        td = self.filtering_statistic_analyze(n)
-        # plot the threshold line
-        plt.plot([self.threshold for i in range(len(td))], 'b-')
-        # plot filtered values
-        plt.plot(td, "ro")
-        plt.xlabel("Data Frame")
-        plt.ylabel("Level")
-        plt.savefig("threshold_statistic" + str(n) + ".png")
+        plt.savefig("time_delta_eval" + str(self.data_points) + ".png")
         plt.clf()
 
     '''
     Evaluates data using filter mask, several values of filters are averaged 
     '''
-    def filtering_statistic_analyze(self, n=10):
+    def filtering_statistic_analyze(self):
         result = []
         # go though the data points
-        for i in range(n+1):
+        for i in range(self.data_points+1):
             self.reader.read_frame()
             # calculate average value over filtered frequencies
             avg = 0
@@ -79,14 +98,31 @@ class FSVRAnalysis:
         return result
 
     '''
+    Plots filtered values statistic
+    '''
+    def filtering_statistic_plot(self):
+        # start from the 0 frame
+        self.reader.reopen_file()
+        # get filtering statistic
+        td = self.filtering_statistic_analyze()
+        # plot the threshold line
+        plt.plot([self.threshold for i in range(len(td))], 'b-')
+        # plot filtered values
+        plt.plot(td, "ro")
+        plt.xlabel("Data Frame")
+        plt.ylabel("Level")
+        plt.savefig("threshold_statistic" + str(self.data_points) + ".png")
+        plt.clf()
+
+    '''
     Gets maximum value of data frames
     '''
-    def max_values(self, n=10):
+    def max_values(self):
         # start from the 0 frame
         self.reader.reopen_file()
         result = {}
         # go though the data points
-        for i in range(n+1):
+        for i in range(self.data_points+1):
             self.reader.read_frame()
             vals = list(self.reader.last_frame['Data'].values())
             keys = list(self.reader.last_frame['Data'].keys())
@@ -100,8 +136,8 @@ class FSVRAnalysis:
     '''
     Find values over threshold
     '''
-    def values_over_threshold(self, n=10):
-        max_vals = self.max_values(n)
+    def values_over_threshold(self):
+        max_vals = self.max_values()
         result = {}
         for key, val in max_vals.items():
             if val >= self.threshold:
@@ -111,33 +147,31 @@ class FSVRAnalysis:
     '''
     Average values
     '''
-    def avg_values(self, n=10):
+    def avg_values(self):
         # start from the 0 frame
         self.reader.reopen_file()
         result = []
-        plt.plot([self.threshold for i in range(n)], 'b-')
-        start_ts = 0
-        end_ts = 0
+        plt.plot([self.threshold for i in range(self.data_points)], 'b-')
         # go though the data points
-        for i in range(n+1):
+        for i in range(self.data_points+1):
             self.reader.read_frame()
-            if i == 0:
-                start_ts = self.reader.last_frame['Timestamp']
-            elif i == n:
-                end_ts = self.reader.last_frame['Timestamp']
-            result.append(sum(self.reader.last_frame['Data'].values())/len(self.reader.last_frame['Data']))
-        return (result, start_ts, end_ts)
+            cnt = len(self.reader.last_frame['Data'])
+            vals = list(self.reader.last_frame['Data'].values())
+            keys = list(self.reader.last_frame['Data'].keys())
+            result.append(sum(vals)/cnt)
+        return result
 
     '''
+    Plots averaged values over the data frames
     '''
-    def avg_values_plot(self, n=10):
-        avg_eval = self.avg_values(n)
+    def avg_values_plot(self):
+        avg_eval = self.avg_values()
 
-        plt.plot(avg_eval[0], 'ro')
+        plt.plot(avg_eval, 'ro')
         plt.xlabel('Data frame')
         plt.ylabel(self.reader.header['y-Unit'][0])
-        plt.title(str(avg_eval[1]) + " " + str(avg_eval[2]) + " " + str(avg_eval[1]-avg_eval[2])+" s")
-        plt.savefig("avg"+str(n)+".png")
+        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.header['x-Unit'][0])
+        plt.savefig("avg"+str(self.data_points)+".png")
         plt.clf()
 
     '''
@@ -153,11 +187,11 @@ class FSVRAnalysis:
         plt.clf()
 
     '''Shows frame'''
-    def frame_plot(self, n=10):
+    def frame_plot(self):
         # start from the 0 frame
         self.reader.reopen_file()
         # go though the data points
-        for i in range(n+1):
+        for i in range(self.data_points+1):
             self.reader.read_frame()
         self.last_frame_plot()
 
