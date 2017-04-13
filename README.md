@@ -5,7 +5,7 @@ This python modules are developed for analysing dump files of spectrum analyser 
 ### If you would like to use *FSVRAnalysis* class you have to write your own reader class, which is used in initialisation, following method should be implemented: ###
 * reopen_file() - resets pointer in the text file
 * read_frame() - reads the next time frame followed by a current position of a pointer
-* get_axis_units() - returns turple of axis units as strings (x,y), e.g. ("Hz", "dBm")
+* get_axis_units() - returns tuple of axis units as strings (x,y), e.g. ("Hz", "dBm")
 * get_last_frame() - returns dictionary with a frame information, described below
 * get_data_frames_amount() - returns int, number of available frames
 * get_sweep_time() - returns float, sweep time in seconds
