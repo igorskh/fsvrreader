@@ -13,4 +13,4 @@ This python modules are developed for analysing dump files of spectrum analyser 
 * ['Data'] - dictionary, keys are frequencies and values are levels {f1:l1, f2:l2, f3: l3, ...}
 * ['Timestamp'] - float, timestamp of the data frame
 * ['Frame'] - int, data frame order number
-Typical usage is in *test.py* file
+### Typical usage is in *test.py* file
