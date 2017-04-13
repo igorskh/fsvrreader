@@ -19,6 +19,7 @@ class FSVRReader:
     file = None
     header = {}
     # sweep time multiplier
+    # TODO: sweep time usage works incorrectly
     swt_mlt = 0
 
     '''
