@@ -90,18 +90,3 @@ class FSVRReader:
         frame['Data'] = frame_data
 
         return frame
-
-    '''
-    Plots the last data frame points
-    '''
-    def plot_frame(self, frame={}):
-        if len(frame) == 0:
-            frame = self.last_frame
-        plt.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
-        plt.xlabel(self.header['x-Unit'][0])
-        plt.ylabel(self.header['y-Unit'][0])
-        #value = datetime.datetime.fromtimestamp(frame['Timestamp'])
-        #print(frame['Timestamp'], value.strftime("%d.%b %yT%H:%M:%S.%f"), frame['Date']+"T"+frame['Time'])
-        plt.title(frame['Date']+" "+ frame['Time'] + " " +str(frame['Timestamp']) +" " +  " Frame #"+ frame['Frame'])
-        plt.savefig("figure"+str(frame['Frame'])+".png")
-        plt.clf()

@@ -97,6 +97,17 @@ class FSVRAnalysis:
             result[keys[max_idx]] = max_val
         return result
 
+    '''
+    Plots last frame
+    '''
+    def last_frame_plot(self):
+        frame = self.reader.last_frame
+        plt.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
+        plt.xlabel(self.reader.header['x-Unit'][0])
+        plt.ylabel(self.reader.header['y-Unit'][0])
+        plt.title(frame['Date'] + " " + frame['Time'] + " " + str(frame['Timestamp']) + " " +  " Frame #"+ frame['Frame'])
+        plt.savefig("figure"+str(frame['Frame'])+".png")
+        plt.clf()
 
     '''Shows frame'''
     def frame_plot(self, n=10):
@@ -105,7 +116,7 @@ class FSVRAnalysis:
         # go though the data points
         for i in range(n+1):
             self.reader.read_frame()
-        self.reader.plot_frame()
+        self.last_frame_plot()
 
     '''
     Initialize analysis
