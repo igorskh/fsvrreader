@@ -83,10 +83,8 @@ class FSVRReader:
                 if values[0] == 'Timestamp':
                     frame['Date'] = values[1]
                     frame['Time'] = values[2]
-                    #12.Apr 17;17:55:58.470
-                    # TODO: milliseconds do not saved in a timestamp format
-                    frame['Timestamp'] = time.mktime(datetime.datetime.strptime(frame['Date']+"T"+frame['Time'], "%d.%b %yT%H:%M:%S.%f").timetuple())
-                    frame['Timestamp'] += float(frame['Time'][-4:])
+                    # example time 12.Apr 17;17:55:58.470
+                    frame['Timestamp'] = datetime.datetime.strptime(frame['Date']+"T"+frame['Time'], "%d.%b %yT%H:%M:%S.%f").timestamp()
                 else:
                     frame[values[0]] = values[1]
             # for values
