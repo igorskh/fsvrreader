@@ -1,14 +1,16 @@
 # README #
 
 This python modules are developed for analysing dump files of spectrum analyser R&D FSVR
-### If you would like to change reader class for another device, important to know that *header* variable is used by FSVRAnalysis class, it is a dictionary, all values of *header* are lists, the following keys are used: ###
-* header['Frames'][0] - available number of time frames
-* header['x-Unit'][0] - unit of x axis
-* header['SWT'][0] - sweep time
-### Following methods are used as well: ### 
+
+### If you would like to use FSVRAnalysis class you have to write your own read class, which is used in initialisation, following method should be defined: ###
 * reopen_file() - resets pointer in the text file
-* read_frame() - reads the next time frame
-###  Following keys of *last_frame* variable are used: ### 
-* last_frame['Timestamp'] - timestamp of the last timeframe
-* last_frame['Data'] - contains dictionary, where keys are frequencies and values are levels {f1:l1, f2:l2, f3: l3}
-### If something is missing, it is recommended to create an empty variable. However, if *header['Frames'][0]* is less than 2, *header['SWT'][0]* is not necessary. ###
+* read_frame() - reads the next time frame followed by a current position of a pointer
+* get_axis_units() - returns turple of axis units as strings (x,y), e.g. ("Hz", "dBm")
+* get_last_frame() - returns dictionary with a frame information, described below
+* get_data_frames_amount() - returns int, number of available frames
+* get_sweep_time() - returns float, sweep time in seconds
+### Information inside get_last_frame() returned dictionary
+* ['Data'] - dictionary, keys are frequencies and values are levels {f1:l1, f2:l2, f3: l3, ...}
+* ['Timestamp'] - float, timestamp of the data frame
+* ['Frame'] - int, data frame order number
+Typical usage is in *test.py* file
