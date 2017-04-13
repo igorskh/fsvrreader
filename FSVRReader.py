@@ -34,38 +34,33 @@ class FSVRReader:
     def read_line(self):
         """
         Reads next line of the file
-        :return: 
-            str: line data
+        :return: str: line data
         """
         result = self.file.readline()
         return result
 
     def get_axis_units(self):
         """
-        :return: 
-            tuple: (x unit,y unit)
+        :return: tuple: (x unit,y unit)
         """
         return self.header['x-Unit'][0], self.header['y-Unit'][0]
 
     def get_data_frames_amount(self):
         """
-        :returns: 
-            int: number of data frames
+        :return: int: number of data frames
         """
         return int(self.header['Frames'][0])
 
     def get_last_frame(self):
         """
-        :returns: 
-            object: last frame object
+        :return: object: last frame object
         """
         return self.last_frame
 
     def get_sweep_time(self):
         """
         Returns sweep time got from a header
-        :returns: 
-            float: sweep time
+        :return: float: sweep time
         """
         return float(self.header['SWT'][0])
 
@@ -73,8 +68,7 @@ class FSVRReader:
         """
         Reads file header, must be used first after initialization
         :param limit: max lines for header
-        :returns:
-            bool: True if successful, False otherwise.
+        :return: bool: True if successful, False otherwise.
         """
         for i in range(limit):
             values = self.read_line().rstrip().split(";")
@@ -87,8 +81,7 @@ class FSVRReader:
 
     def reopen_file(self):
         """ Reopens file to the position of first frame, skips header
-        :returns:
-            object: File object
+        :return: object: File object
         """
         self.file.close()
         self.file = open(self.file_path, "r")
@@ -97,9 +90,8 @@ class FSVRReader:
 
     def read_frame(self):
         """
-        
-        :returns:
-            dict: frame data
+        Reads next frame
+        :return: dict: frame data
         """
         frame = {}
         frame_data = {}
