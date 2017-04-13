@@ -97,7 +97,7 @@ class FSVRReader:
     def plot_frame(self, frame={}):
         if len(frame) == 0:
             frame = self.last_frame
-        plt.plot(list(frame['Data'].keys()), list(frame['Data'].values()))
+        plt.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
         plt.xlabel(self.header['x-Unit'][0])
         plt.ylabel(self.header['y-Unit'][0])
         #value = datetime.datetime.fromtimestamp(frame['Timestamp'])

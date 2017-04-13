@@ -97,6 +97,16 @@ class FSVRAnalysis:
             result[keys[max_idx]] = max_val
         return result
 
+
+    '''Shows frame'''
+    def frame_plot(self, n=10):
+        # start from the 0 frame
+        self.reader.reopen_file()
+        # go though the data points
+        for i in range(n):
+            self.reader.read_frame()
+        self.reader.plot_frame()
+
     '''
     Initialize analysis
     '''
