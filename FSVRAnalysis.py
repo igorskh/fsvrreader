@@ -40,7 +40,7 @@ class FSVRAnalysis:
         else:
             # TODO: throw error not enough points
             print("Only "+self.reader.header['Frames'][0]+' data frame(s) are available' )
-            pass
+            self.data_points = int(self.reader.header['Frames'][0])-1
 
     '''
     Gets basic info
@@ -59,7 +59,7 @@ class FSVRAnalysis:
                 # get frequency boundaries
                 keys = list(self.reader.last_frame['Data'].keys())
                 self.freq = keys[int(round(len(keys)/2,0))]
-                self.f_span = keys[0] - keys[len(keys)-1]
+                self.f_span = abs(keys[0] - keys[len(keys)-1])
             elif i == self.data_points:
                 self.start_ts = self.reader.last_frame['Timestamp']
         self.duration = round(self.end_ts - self.start_ts,3)
@@ -183,6 +183,10 @@ class FSVRAnalysis:
     def avg_values_plot(self):
         # get averaged values
         avg_eval = self.avg_values()
+
+        values_over_threshold = sum(i > self.threshold for i in avg_eval)
+        occupation_ratio = round(values_over_threshold*100 / len(avg_eval), 2)
+
         fig = plt.figure()
         # set plot title
         fig.suptitle('Carrier = '+str(self.freq)+" "+self.reader.header['x-Unit'][0], fontsize=14, fontweight='bold')
@@ -200,15 +204,16 @@ class FSVRAnalysis:
         # draw legend
         yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
         xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
-        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.12*yr,
+        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.18*yr,
                 'Duration = '+ str(self.duration)+" s\n" +
-                'Sweep time = ' + str(self.reader.header['SWT'][0])+" s",
-                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
+                'Sweep time = ' + str(self.reader.header['SWT'][0])+" s\n" +
+                "F span = " + str(self.f_span) + " "+self.reader.header['x-Unit'][0] +'\n' +
+                'Ratio = ' + str(occupation_ratio) + '%',
+                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.3, 'pad': 5})
         # save plot
         plt.savefig("avg" + str(self.data_points) + ".png")
         # clear plot
         plt.clf()
-
 
     '''
     Plots last frame
