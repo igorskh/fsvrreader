@@ -78,6 +78,7 @@ class FSVRAnalysis:
         plt.plot(td, "ro")
         plt.xlabel("Frame")
         plt.ylabel("Time Difference")
+        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.header['x-Unit'][0])
         plt.savefig("time_delta_eval" + str(self.data_points) + ".png")
         plt.clf()
 
@@ -137,8 +138,10 @@ class FSVRAnalysis:
     Find values over threshold
     '''
     def values_over_threshold(self):
+        # get max values over the frames
         max_vals = self.max_values()
         result = {}
+        # leave only value which are greater than threshold
         for key, val in max_vals.items():
             if val >= self.threshold:
                 result[key] = val
@@ -151,14 +154,11 @@ class FSVRAnalysis:
         # start from the 0 frame
         self.reader.reopen_file()
         result = []
-        plt.plot([self.threshold for i in range(self.data_points)], 'b-')
         # go though the data points
         for i in range(self.data_points+1):
             self.reader.read_frame()
             cnt = len(self.reader.last_frame['Data'])
-            vals = list(self.reader.last_frame['Data'].values())
-            keys = list(self.reader.last_frame['Data'].keys())
-            result.append(sum(vals)/cnt)
+            result.append(sum(list(self.reader.last_frame['Data'].values()))/cnt)
         return result
 
     '''
@@ -166,7 +166,7 @@ class FSVRAnalysis:
     '''
     def avg_values_plot(self):
         avg_eval = self.avg_values()
-
+        plt.plot([self.threshold for i in range(self.data_points)], 'b-')
         plt.plot(avg_eval, 'ro')
         plt.xlabel('Data frame')
         plt.ylabel(self.reader.header['y-Unit'][0])
@@ -182,7 +182,7 @@ class FSVRAnalysis:
         plt.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
         plt.xlabel(self.reader.header['x-Unit'][0])
         plt.ylabel(self.reader.header['y-Unit'][0])
-        plt.title(frame['Date'] + " " + frame['Time'] + " " + str(frame['Timestamp']) + " " +  " Frame #"+ frame['Frame'])
+        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.header['x-Unit'][0])
         plt.savefig("figure"+str(frame['Frame'])+".png")
         plt.clf()
 
