@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Author: Igor Kim
 E-mail: igor.skh@gmail.com
