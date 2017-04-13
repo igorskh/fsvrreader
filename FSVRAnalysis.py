@@ -8,6 +8,7 @@ Analysis module for R&S FSVR Signal Analyzer DAT files
 April 2017
 """
 import matplotlib.pyplot as plt
+import warnings
 
 
 class FSVRAnalysis:
@@ -59,9 +60,8 @@ class FSVRAnalysis:
         if value < int(self.reader.get_data_frames_amount()):
             self.data_points = value
         else:
-            # TODO: throw error not enough points
-            print("Only "+str(self.reader.get_data_frames_amount())+' data frame(s) are available' )
-            self.data_points = int(self.reader.get_data_frames_amount())-1
+            self.data_points = int(self.reader.get_data_frames_amount()) - 1
+            print("Only " + str(self.data_points) + " data frame(s) are available, was set to this")
 
     def get_info(self):
         """

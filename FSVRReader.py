@@ -30,12 +30,16 @@ class FSVRReader:
             self.file_path = filename
             self.file = open(self.file_path, "r")
             self.read_header()
+        else:
+            raise FileNotFoundError("File " + filename + " does not exist")
 
     def read_line(self):
         """
         Reads next line of the file
         :return: str: line data
         """
+        if self.file is None:
+            raise RuntimeError("File has not been initialized")
         result = self.file.readline()
         return result
 
@@ -43,18 +47,24 @@ class FSVRReader:
         """
         :return: tuple: (x unit,y unit)
         """
+        if len(self.header) == 0:
+            raise RuntimeError("Header has not been initialized")
         return self.header['x-Unit'][0], self.header['y-Unit'][0]
 
     def get_data_frames_amount(self):
         """
         :return: int: number of data frames
         """
+        if len(self.header) == 0:
+            raise RuntimeError("Header has not been initialized")
         return int(self.header['Frames'][0])
 
     def get_last_frame(self):
         """
         :return: object: last frame object
         """
+        if len(self.last_frame) == 0:
+            raise RuntimeError("Last frame information does not exists, run read_frame first")
         return self.last_frame
 
     def get_sweep_time(self):
@@ -62,6 +72,8 @@ class FSVRReader:
         Returns sweep time got from a header
         :return: float: sweep time
         """
+        if len(self.header) == 0:
+            raise RuntimeError("Header has not been initialized")
         return float(self.header['SWT'][0])
 
     def read_header(self, limit=30):
@@ -70,6 +82,8 @@ class FSVRReader:
         :param limit: max lines for header
         :return: bool: True if successful, False otherwise.
         """
+        if self.file is None:
+            raise RuntimeError("File has not been initialized")
         for i in range(limit):
             values = self.read_line().rstrip().split(";")
             self.header[values[0]] = values[1:]
@@ -83,6 +97,8 @@ class FSVRReader:
         """ Reopens file to the position of first frame, skips header
         :return: object: File object
         """
+        if self.file is None:
+            raise RuntimeError("File has not been initialized")
         self.file.close()
         self.file = open(self.file_path, "r")
         self.file.seek(self.header_end)
@@ -93,6 +109,10 @@ class FSVRReader:
         Reads next frame
         :return: dict: frame data
         """
+        if self.file is None:
+            raise RuntimeError("File has not been initialized")
+        if len(self.header) == 0:
+            raise RuntimeError("Header has not been initialized")
         frame = {}
         frame_data = {}
         # read the number provided by Values number in the header
