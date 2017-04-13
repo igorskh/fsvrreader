@@ -2,7 +2,7 @@
 
 This python modules are developed for analysing dump files of spectrum analyser R&D FSVR
 
-### If you would like to use *FSVRAnalysis* class you have to write your own read class, which is used in initialisation, following method should be defined: ###
+### If you would like to use *FSVRAnalysis* class you have to write your own reader class, which is used in initialisation, following method should be defined: ###
 * reopen_file() - resets pointer in the text file
 * read_frame() - reads the next time frame followed by a current position of a pointer
 * get_axis_units() - returns turple of axis units as strings (x,y), e.g. ("Hz", "dBm")
