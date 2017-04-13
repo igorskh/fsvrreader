@@ -6,7 +6,6 @@ Reader module for R&S FSVR Signal Analyzer
 """
 
 import os.path
-import matplotlib.pyplot as plt
 import time
 import datetime
 
@@ -19,6 +18,8 @@ class FSVRReader:
     header_end = 0
     file = None
     header = {}
+    # sweep time multiplier
+    swt_mlt = 0
 
     '''
     Read one line of a file, increases a next_line counter
@@ -37,6 +38,9 @@ class FSVRReader:
             self.file_path = filename
             self.file = open(self.file_path, "r")
             self.read_header()
+            self.header['SWT'][0] = float(self.header['SWT'][0])
+            if (self.header['SWT'][0] < 0.001):
+                self.swt_mlt = 1
 
     '''
     Reads file header, must be used first after initialization
@@ -79,8 +83,14 @@ class FSVRReader:
                     #12.Apr 17;17:55:58.470
                     # TODO: milliseconds do not saved in a timestamp format
                     frame['Timestamp'] = time.mktime(datetime.datetime.strptime(frame['Date']+"T"+frame['Time'], "%d.%b %yT%H:%M:%S.%f").timetuple())
+                    swt_add = self.header['SWT'][0]*self.swt_mlt
+                    if swt_add >= 0.001 or frame['Frame'] == '0':
+                        swt_add = 0
+                        self.swt_mlt = 1
+                    else:
+                        self.swt_mlt += 1
                     # temporary fix
-                    frame['Timestamp'] += float(frame['Time'][-4:])
+                    frame['Timestamp'] += float(frame['Time'][-4:]) - swt_add
                 else:
                     frame[values[0]] = values[1]
             # for values
