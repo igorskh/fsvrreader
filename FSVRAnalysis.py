@@ -260,7 +260,7 @@ class FSVRAnalysis:
                 'Sweep time = ' + str(self.reader.get_sweep_time())+" s\n" +
                 "F span = " + str(self.f_span) + " "+self.reader.get_axis_units()[0] +'\n' +
                 'Ratio = ' + str(occupation_ratio) + '%',
-                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.6, 'pad': 5})
+                style='italic', color='white', bbox={'facecolor': 'black', 'alpha': 0.6, 'pad': 5})
         # save plot
         plt.savefig("avg" + str(self.data_points) + ".png")
         # clear plot
