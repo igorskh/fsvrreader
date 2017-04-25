@@ -122,7 +122,7 @@ class FSVRAnalysis:
         plt.xlabel("Frame")
         plt.ylabel("Time Difference")
         plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.get_axis_units()[0])
-        plt.savefig("time_delta_eval" + str(self.data_points) + ".png")
+        plt.savefig(self.reader.get_filename() + "_time_delta_eval" + str(self.data_points) + ".png")
         plt.clf()
 
     def filtering_statistic_analyze(self):
@@ -163,7 +163,7 @@ class FSVRAnalysis:
         plt.plot(td, "ro")
         plt.xlabel("Data Frame")
         plt.ylabel("Level")
-        plt.savefig("threshold_statistic" + str(self.data_points) + ".png")
+        plt.savefig(self.reader.get_filename() + "_threshold_statistic" + str(self.data_points) + ".png")
         plt.clf()
 
     def max_values(self):
@@ -262,7 +262,7 @@ class FSVRAnalysis:
                 'Ratio = ' + str(occupation_ratio) + '%',
                 style='italic', color='white', bbox={'facecolor': 'black', 'alpha': 0.6, 'pad': 5})
         # save plot
-        plt.savefig("avg" + str(self.data_points) + ".png")
+        plt.savefig(self.reader.get_filename() + "_avg_" + str(self.data_points) + ".png")
         # clear plot
         plt.clf()
 
@@ -287,7 +287,7 @@ class FSVRAnalysis:
         ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.06*yr,
                 'Carrier = '+str(self.freq)+" "+self.reader.get_axis_units()[0],
                 style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
-        plt.savefig("figure" + str(frame['Frame']) + ".png")
+        plt.savefig(self.reader.get_filename() + "_figure" + str(frame['Frame']) + ".png")
         plt.clf()
 
     def frame_plot(self):
