@@ -8,6 +8,7 @@ Analysis module for R&S FSVR Signal Analyzer DAT files
 April 2017
 """
 import matplotlib.pyplot as plt
+import numpy as np
 import warnings
 
 
@@ -24,6 +25,7 @@ class FSVRAnalysis:
     start_ts = 0.0  #: float: start timestamp
     end_ts = 0.0  #: float: end timestamp
     duration = 0.0  #: float: sample duration from the first to the last data frame
+    timeline = []
 
     @property
     def get_threshold(self):
@@ -86,6 +88,7 @@ class FSVRAnalysis:
             elif i == self.data_points-1:
                 self.start_ts = self.reader.get_last_frame()['Timestamp']
         self.duration = round(self.end_ts - self.start_ts,3)
+        self.timeline = np.linspace(0, self.duration, self.data_points)
         return True
 
     def time_delta_eval(self):
