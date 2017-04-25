@@ -247,12 +247,12 @@ class FSVRAnalysis:
         ax = fig.add_subplot(111)
         fig.subplots_adjust(top=0.9)
         # plot averaged levels
-        ax.plot(avg_eval, 'ro')
+        ax.plot(self.timeline, avg_eval, 'ro')
         # plot horizontal threshold line
-        ax.plot([self.threshold for i in range(self.data_points)], 'b-')
+        ax.plot(self.timeline, [self.threshold for i in range(self.data_points)], 'b-')
         # set axis labels
-        ax.set_xlabel('Data frame')
-        ax.set_ylabel(self.reader.get_axis_units()[1])
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('Level ('+self.reader.get_axis_units()[1]+')')
         # get axis information
         axis = fig.gca()
         # draw legend
