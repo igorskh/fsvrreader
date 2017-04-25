@@ -57,10 +57,10 @@ class FSVRAnalysis:
         :param value: int; number of point to analyze
         :return: 
         """
-        if value < int(self.reader.get_data_frames_amount()):
+        if 0 < value <= int(self.reader.get_data_frames_amount()):
             self.data_points = value
         else:
-            self.data_points = int(self.reader.get_data_frames_amount()) - 1
+            self.data_points = int(self.reader.get_data_frames_amount())
             warnings.warn("Only " + str(self.data_points) + " data frame(s) are available, was set to this")
 
     def get_info(self):
@@ -75,7 +75,7 @@ class FSVRAnalysis:
         self.start_ts = 0
         self.end_ts = 0
         # go though the data points
-        for i in range(self.data_points+1):
+        for i in range(self.data_points):
             self.reader.read_frame()
             if i == 0:
                 self.end_ts = self.reader.get_last_frame()['Timestamp']
@@ -83,7 +83,7 @@ class FSVRAnalysis:
                 keys = list(self.reader.get_last_frame()['Data'].keys())
                 self.freq = keys[int(round(len(keys)/2,0))]
                 self.f_span = abs(keys[0] - keys[len(keys)-1])
-            elif i == self.data_points:
+            elif i == self.data_points-1:
                 self.start_ts = self.reader.get_last_frame()['Timestamp']
         self.duration = round(self.end_ts - self.start_ts,3)
         return True
@@ -98,7 +98,7 @@ class FSVRAnalysis:
             return False
         time_delta = []
         last_time = 0
-        for i in range(self.data_points+1):
+        for i in range(self.data_points):
             self.reader.read_frame()
             if i == 0:
                 time_delta.append(0)
@@ -135,7 +135,7 @@ class FSVRAnalysis:
             return False
         result = []
         # go though the data points
-        for i in range(self.data_points+1):
+        for i in range(self.data_points):
             self.reader.read_frame()
             # calculate average value over filtered frequencies
             avg = 0
@@ -178,7 +178,7 @@ class FSVRAnalysis:
         self.reader.reopen_file()
         result = {}
         # go though the data points
-        for i in range(self.data_points+1):
+        for i in range(self.data_points):
             self.reader.read_frame()
             vals = list(self.reader.get_last_frame()['Data'].values())
             keys = list(self.reader.get_last_frame()['Data'].keys())
@@ -218,7 +218,7 @@ class FSVRAnalysis:
         self.reader.reopen_file()
         result = []
         # go though the data points
-        for i in range(self.data_points+1):
+        for i in range(self.data_points):
             self.reader.read_frame()
             cnt = len(self.reader.get_last_frame()['Data'])
             result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
@@ -287,7 +287,7 @@ class FSVRAnalysis:
         ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.06*yr,
                 'Carrier = '+str(self.freq)+" "+self.reader.get_axis_units()[0],
                 style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
-        plt.savefig(self.reader.get_filename() + "_figure" + str(frame['Frame']) + ".png")
+        plt.savefig(self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png")
         plt.clf()
 
     def frame_plot(self):
@@ -298,7 +298,7 @@ class FSVRAnalysis:
         # start from the 0 frame
         self.reader.reopen_file()
         # go though the data points
-        for i in range(self.data_points+1):
+        for i in range(self.data_points):
             self.reader.read_frame()
         self.last_frame_plot()
 
