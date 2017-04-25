@@ -93,6 +93,12 @@ class FSVRReader:
                 return True
         return False
 
+    def get_filename(self):
+        """
+        :return: string: path to the file
+        """
+        return self.file_path
+
     def reopen_file(self):
         """ Reopens file to the position of first frame, skips header
         :return: object: File object
