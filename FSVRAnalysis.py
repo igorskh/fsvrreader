@@ -232,20 +232,25 @@ class FSVRAnalysis:
         :return: 
         """
         result = self.avg_values()
+        # delta time points
         ares = []
-        times = []
+        # last time point to calc delta
         last_time_point = 0
         for i in range(self.get_data_points):
+            # take only points above the threshold
             if result[i] >= self.get_threshold:
-                times.append(self.timeline[i])
                 ares.append(self.timeline[i] - last_time_point)
                 last_time_point = self.timeline[i]
+        # sort delta time points
         ares = sorted(ares)
+        # normalize data
         ares1 = ares / np.sum(ares)
+        # get the cumulative sum
         cum_ares = np.cumsum(ares1)
         # set axis labels
         plt.xlabel('Delta time')
         plt.ylabel('CDF')
+        # plot the 1 porbability line
         plt.plot(ares, [1 for i in range(len(ares))], 'y--')
         plt.plot(ares, cum_ares)
         plt.savefig(self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png")
