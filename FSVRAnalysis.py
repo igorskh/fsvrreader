@@ -66,6 +66,50 @@ class FSVRAnalysis:
             self.data_points = int(self.reader.get_data_frames_amount())
             warnings.warn("Only " + str(self.data_points) + " data frame(s) are available, was set to this")
 
+    @staticmethod
+    def init_plot(xlabel="", ylabel="", title=""):
+        """
+        Prepares objects to plot
+        :param xlabel: label on x axis
+        :param ylabel: label on y axis
+        :param title: title above the plot
+        :return: fig, ax - figure object to process to finish_plot() method
+        """
+        fig = plt.figure()
+        # set title
+        fig.suptitle(title, fontsize=14, fontweight='bold')
+        ax = fig.add_subplot(111)
+        fig.subplots_adjust(top=0.9)
+        # set axis labels
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        return fig,ax
+
+    @staticmethod
+    def finish_plot(fig, ax, filename=None, legend=None):
+        """
+        Finishes plotting the figure
+        :param fig: object from init_plot method
+        :param ax: object from init_plot method
+        :param filename: filename to save figure
+        :param legend: legend text
+        :return: 
+        """
+        # if no object provided throw an exception
+        if fig is None or ax is None:
+            raise RuntimeError("Unable to preform figure plotting")
+        axis = fig.gca()
+        yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
+        xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
+        # plot legend on a figure
+        if not legend is None:
+            ax.text(axis.get_xlim()[0] + xr * 0.03, axis.get_ylim()[1] - 0.06 * yr,
+                legend, bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
+        if filename is None:
+            plt.show()
+        else:
+            plt.savefig(filename)
+
     def get_info(self):
         """
         Calculates basic info, start and end timestamp, sample duration,
