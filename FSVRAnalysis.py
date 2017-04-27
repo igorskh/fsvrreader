@@ -255,7 +255,8 @@ class FSVRAnalysis:
         ares1 = ares / np.sum(ares)
         # get the cumulative sum
         cum_ares = np.cumsum(ares1)
-        fig, ax = self.init_plot("Delta time (s)", "CDF", "CDF function")
+        fig, ax = self.init_plot("Delta time (s)", "CDF",
+                                 "Carrier = " + str(self.freq) + " " + self.reader.get_axis_units()[0])
         plt.plot(ares, cum_ares)
         self.finish_plot(fig, ax, self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png",
                          "Duration = " + str(self.duration) + " s\n" +
