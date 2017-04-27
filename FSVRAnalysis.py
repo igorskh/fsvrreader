@@ -291,7 +291,7 @@ class FSVRAnalysis:
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
                          "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0] + '\n' +
-                         "Ratio = " + str(occupation_ratio) + "%")
+                         "Occupation Ratio = " + str(occupation_ratio) + "%")
 
     def last_frame_plot(self):
         """
