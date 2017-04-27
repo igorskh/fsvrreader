@@ -227,6 +227,29 @@ class FSVRAnalysis:
             result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
         return result
 
+    def plot_cdf(self):
+        """
+        :return: 
+        """
+        result = self.avg_values()
+        ares = []
+        times = []
+        last_time_point = 0
+        for i in range(self.get_data_points):
+            if result[i] >= self.get_threshold:
+                times.append(self.timeline[i])
+                ares.append(self.timeline[i] - last_time_point)
+                last_time_point = self.timeline[i]
+        ares = sorted(ares)
+        ares1 = ares / np.sum(ares)
+        cum_ares = np.cumsum(ares1)
+        # set axis labels
+        plt.xlabel('Delta time')
+        plt.ylabel('CDF')
+        plt.plot(ares, cum_ares)
+        plt.savefig(self.reader.get_filename() + "_cfd.png")
+
+
     def avg_values_plot(self):
         """
         Plots averaged values over the data frames
