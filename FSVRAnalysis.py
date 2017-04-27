@@ -103,8 +103,9 @@ class FSVRAnalysis:
         xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
         # plot legend on a figure
         if not legend is None:
-            ax.text(axis.get_xlim()[0] + xr * 0.03, axis.get_ylim()[1] - 0.06 * yr,
-                legend, bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
+            ax.text(axis.get_xlim()[0] + xr * 0.03,
+                    axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n")+1),
+                    legend, bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
         if filename is None:
             plt.show()
         else:
@@ -168,14 +169,13 @@ class FSVRAnalysis:
         self.reader.reopen_file()
         # get filtering statistic
         td = self.filtering_statistic_analyze()
+
+        fig, ax = self.init_plot("Data Frame", "Level", "Filtered statistic")
         # plot the threshold line
-        plt.plot([self.threshold for i in range(len(td))], 'b-')
+        ax.plot([self.threshold for i in range(len(td))], 'b-')
         # plot filtered values
-        plt.plot(td, "ro")
-        plt.xlabel("Data Frame")
-        plt.ylabel("Level")
-        plt.savefig(self.reader.get_filename() + "_threshold_statistic" + str(self.data_points) + ".png")
-        plt.clf()
+        ax.plot(td, "ro")
+        self.finish_plot(fig, ax, self.reader.get_filename() + "_threshold_statistic" + str(self.data_points) + ".png")
 
     def max_values(self):
         """
@@ -255,17 +255,12 @@ class FSVRAnalysis:
         ares1 = ares / np.sum(ares)
         # get the cumulative sum
         cum_ares = np.cumsum(ares1)
-        # set axis labels
-        plt.xlabel('Delta time')
-        plt.ylabel('CDF')
-        axes = plt.gca()
-        # set limits
-        axes.set_xlim([ares[0], ares[len(ares)-1]])
-        axes.set_ylim([0, 1])
-        # plot the 1 porbability line
+        fig, ax = self.init_plot("Delta time (s)", "CDF", "CDF function")
         plt.plot(ares, cum_ares)
-        plt.savefig(self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png")
-
+        self.finish_plot(fig, ax, self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png",
+                         "Duration = " + str(self.duration) + " s\n" +
+                         "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
+                         "F resolution = " + str(self.f_span) + " " + self.reader.get_axis_units()[0])
 
     def avg_values_plot(self):
         """
@@ -280,34 +275,18 @@ class FSVRAnalysis:
 
         values_over_threshold = sum(i > self.threshold for i in avg_eval)
         occupation_ratio = round(values_over_threshold*100 / len(avg_eval), 2)
-
-        fig = plt.figure()
-        # set plot title
-        fig.suptitle('Carrier = '+str(self.freq)+" "+self.reader.get_axis_units()[0], fontsize=14, fontweight='bold')
-        ax = fig.add_subplot(111)
-        fig.subplots_adjust(top=0.9)
+        # initialize plot objects
+        fig, ax = self.init_plot("Time (s)", "Level ("+self.reader.get_axis_units()[1]+")",
+                                 "Carrier = " + str(self.freq) + " " + self.reader.get_axis_units()[0])
         # plot averaged levels
         ax.plot(self.timeline, avg_eval, 'ro')
         # plot horizontal threshold line
         ax.plot(self.timeline, [self.threshold for i in range(self.data_points)], 'b-')
-        # set axis labels
-        ax.set_xlabel('Time (s)')
-        ax.set_ylabel('Level ('+self.reader.get_axis_units()[1]+')')
-        # get axis information
-        axis = fig.gca()
-        # draw legend
-        yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
-        xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
-        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[0]+0.06*yr,
-                'Duration = '+ str(self.duration)+" s\n" +
-                'Sweep time = ' + str(self.reader.get_sweep_time())+" s\n" +
-                "F span = " + str(self.f_span) + " "+self.reader.get_axis_units()[0] +'\n' +
-                'Ratio = ' + str(occupation_ratio) + '%',
-                style='italic', color='white', bbox={'facecolor': 'black', 'alpha': 0.6, 'pad': 5})
-        # save plot
-        plt.savefig(self.reader.get_filename() + "_avg_" + str(self.data_points) + ".png")
-        # clear plot
-        plt.clf()
+        self.finish_plot(fig, ax, self.reader.get_filename() + "_avg_" + str(self.data_points) + ".png",
+                         "Duration = " + str(self.duration) + " s\n" +
+                         "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
+                         "F resolution = " + str(self.f_span) + " " + self.reader.get_axis_units()[0] + '\n' +
+                         "Ratio = " + str(occupation_ratio) + "%")
 
     def last_frame_plot(self):
         """
@@ -316,22 +295,12 @@ class FSVRAnalysis:
         """
         # get last frame data
         frame = self.reader.get_last_frame()
-        fig = plt.figure()
-        fig.suptitle('Frame #'+str(frame['Frame']) + ' at ' + str(frame['Timestamp']), fontsize=14, fontweight='bold')
-        ax = fig.add_subplot(111)
-        fig.subplots_adjust(top=0.9)
+
+        fig, ax = self.init_plot(self.reader.get_axis_units()[0], self.reader.get_axis_units()[1],
+                       "Frame #" + str(frame['Frame']) + " at " + str(frame['Timestamp']))
         ax.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
-        # set axis labels
-        ax.set_xlabel(self.reader.get_axis_units()[0])
-        ax.set_ylabel(self.reader.get_axis_units()[1])
-        axis = fig.gca()
-        yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
-        xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
-        ax.text(axis.get_xlim()[0]+xr*0.03, axis.get_ylim()[1]-0.06*yr,
-                'Carrier = '+str(self.freq)+" "+self.reader.get_axis_units()[0],
-                style='italic', bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
-        plt.savefig(self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png")
-        plt.clf()
+        self.finish_plot(fig, ax, self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png",
+                         "Carrier = "+str(self.freq)+" "+self.reader.get_axis_units()[0])
 
     def frame_plot(self):
         """
