@@ -228,7 +228,7 @@ class FSVRAnalysis:
             result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
         return result
 
-    def filtering_statistic_plot(self):
+    def plot_filtering_statistic(self):
         """
         Plots filtered values statistic
         :return: 
@@ -277,7 +277,7 @@ class FSVRAnalysis:
                          "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0])
 
-    def avg_values_plot(self):
+    def plot_avg_values(self):
         """
         Plots averaged values over the data frames
         :return: 
@@ -304,7 +304,7 @@ class FSVRAnalysis:
                          "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "Occupation Ratio = " + str(occupation_ratio) + "%")
 
-    def last_frame_plot(self):
+    def plot_last_frame(self):
         """
         Plots on the graph the last frame
         :return: 
@@ -318,7 +318,7 @@ class FSVRAnalysis:
         self.finish_plot(fig, ax, self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png",
                          "Carrier = "+str(self.freq)+" "+self.reader.get_axis_units()[0])
 
-    def frame_plot(self):
+    def plot_frame(self):
         """
         Plots set self.data_points frame
         :return: 
