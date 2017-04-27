@@ -328,7 +328,7 @@ class FSVRAnalysis:
         # go though the data points
         for i in range(self.data_points):
             self.reader.read_frame()
-        self.last_frame_plot()
+        self.plot_last_frame()
 
     def __init__(self, reader):
         """

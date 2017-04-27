@@ -21,5 +21,5 @@ analyzer.set_threshold(-80)
 # get main information from the data file
 analyzer.get_info()
 # do things...
-analyzer.last_frame_plot()
-analyzer.avg_values_plot()
+analyzer.plot_last_frame()
+analyzer.plot_avg_values()
