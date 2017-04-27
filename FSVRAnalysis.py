@@ -136,43 +136,6 @@ class FSVRAnalysis:
         self.timeline = np.linspace(0, self.duration, self.data_points)
         return True
 
-    def time_delta_eval(self):
-        """
-        Evaluates differences between each two data frames
-        :return: list: delta time
-        """
-        if self.reader.get_data_frames_amount() < 2:
-            print("At least 2 data frames are needed to perform an analysis")
-            return False
-        time_delta = []
-        last_time = 0
-        for i in range(self.data_points):
-            self.reader.read_frame()
-            if i == 0:
-                time_delta.append(0)
-            else:
-                time_delta.append(last_time - self.reader.get_last_frame()['Timestamp'])
-            last_time = self.reader.get_last_frame()['Timestamp']
-        return time_delta
-
-    def time_delta_plot(self):
-        """
-        Plots the differences between each two data frames using time_delta_eval() method
-        :return: 
-        """
-        if self.reader.get_data_frames_amount() < 2:
-            print("At least 2 data frames are needed to perform an analysis")
-            return False
-        # start from the 0 frame
-        self.reader.reopen_file()
-        td = self.time_delta_eval()
-        plt.plot(td, "ro")
-        plt.xlabel("Frame")
-        plt.ylabel("Time Difference")
-        plt.title("duration " + str(self.duration)+" s at "+str(self.freq)+" "+self.reader.get_axis_units()[0])
-        plt.savefig(self.reader.get_filename() + "_time_delta_eval" + str(self.data_points) + ".png")
-        plt.clf()
-
     def filtering_statistic_analyze(self):
         """
         Evaluates filtered values of data frames over time
