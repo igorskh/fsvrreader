@@ -2,6 +2,7 @@
 """
 Author: Igor Kim
 E-mail: igor.skh@gmail.com
+Repository: https://bitbucket.org/igorkim/fsvrreader
 
 Reader module for R&S FSVR Signal Analyzer
 
