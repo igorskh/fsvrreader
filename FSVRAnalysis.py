@@ -18,6 +18,7 @@ class FSVRAnalysis:
     Module for analysis basically channel occupation
     """
     reader = None  #: object: dump file reader object from external class
+    info_initialized = False #: bool: flag that get_info() method was executed
     threshold = 0.0  #: float: threshold level for analysis
     filter_mask = []  #: list: which frequencies will be used for analysis
     data_points = 10  #: int: number of points to be analysed
@@ -118,6 +119,7 @@ class FSVRAnalysis:
         central frequency and a frequency span
         :return: bool: True if successful, False otherwise.
         """
+        self.info_initialized = True
         # start from the 0 frame
         self.reader.reopen_file()
         # start and end timestamp
@@ -137,6 +139,7 @@ class FSVRAnalysis:
                 self.start_ts = self.reader.get_last_frame()['Timestamp']
         self.duration = round(self.end_ts - self.start_ts,3)
         self.timeline = np.linspace(0, self.duration, self.data_points)
+        self.info_initialized = True
         return True
 
     def filtering_statistic_analyze(self):
@@ -147,6 +150,8 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
+        if not self.info_initialized:
+            self.get_info()
         result = []
         # go though the data points
         for i in range(self.data_points):
@@ -159,26 +164,6 @@ class FSVRAnalysis:
             result.append(avg)
         return result
 
-    def filtering_statistic_plot(self):
-        """
-        Plots filtered values statistic
-        :return: 
-        """
-        if self.reader.get_data_frames_amount() < 2:
-            print("At least 2 data frames are needed to perform an analysis")
-            return False
-        # start from the 0 frame
-        self.reader.reopen_file()
-        # get filtering statistic
-        td = self.filtering_statistic_analyze()
-
-        fig, ax = self.init_plot("Data Frame", "Level", "Filtered statistic")
-        # plot the threshold line
-        ax.plot([self.threshold for i in range(len(td))], 'b-')
-        # plot filtered values
-        ax.plot(td, "ro")
-        self.finish_plot(fig, ax, self.reader.get_filename() + "_threshold_statistic" + str(self.data_points) + ".png")
-
     def max_values(self):
         """
         Gets maximum value of data frames
@@ -187,6 +172,8 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
+        if not self.info_initialized:
+            self.get_info()
         # start from the 0 frame
         self.reader.reopen_file()
         result = {}
@@ -210,6 +197,8 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
+        if not self.info_initialized:
+            self.get_info()
         # get max values over the frames
         max_vals = self.max_values()
         result = {}
@@ -227,6 +216,8 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to do take an average")
             return False
+        if not self.info_initialized:
+            self.get_info()
         # start from the 0 frame
         self.reader.reopen_file()
         result = []
@@ -236,6 +227,26 @@ class FSVRAnalysis:
             cnt = len(self.reader.get_last_frame()['Data'])
             result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
         return result
+
+    def filtering_statistic_plot(self):
+        """
+        Plots filtered values statistic
+        :return: 
+        """
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to perform an analysis")
+            return False
+        # start from the 0 frame
+        self.reader.reopen_file()
+        # get filtering statistic
+        td = self.filtering_statistic_analyze()
+
+        fig, ax = self.init_plot("Data Frame", "Level", "Filtered statistic")
+        # plot the threshold line
+        ax.plot([self.threshold for i in range(len(td))], 'b-')
+        # plot filtered values
+        ax.plot(td, "ro")
+        self.finish_plot(fig, ax, self.reader.get_filename() + "_threshold_statistic" + str(self.data_points) + ".png")
 
     def plot_cdf(self):
         """
