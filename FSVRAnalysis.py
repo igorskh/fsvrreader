@@ -22,6 +22,7 @@ class FSVRAnalysis:
     filter_mask = []  #: list: which frequencies will be used for analysis
     data_points = 10  #: int: number of points to be analysed
     f_span = 0.0  #: float: frequency span
+    f_resolution = 0.0 #: float: frequency resolution
     freq = 0.0  #: float: central frequency
     start_ts = 0.0  #: float: start timestamp
     end_ts = 0.0  #: float: end timestamp
@@ -104,7 +105,7 @@ class FSVRAnalysis:
         # plot legend on a figure
         if not legend is None:
             ax.text(axis.get_xlim()[0] + xr * 0.03,
-                    axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n")+1),
+                    axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n")),
                     legend, bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
         if filename is None:
             plt.show()
@@ -131,6 +132,7 @@ class FSVRAnalysis:
                 keys = list(self.reader.get_last_frame()['Data'].keys())
                 self.freq = keys[int(round(len(keys)/2,0))]
                 self.f_span = abs(keys[0] - keys[len(keys)-1])
+                self.f_resolution = abs(keys[1] - keys[0])
             elif i == self.data_points-1:
                 self.start_ts = self.reader.get_last_frame()['Timestamp']
         self.duration = round(self.end_ts - self.start_ts,3)
@@ -261,7 +263,7 @@ class FSVRAnalysis:
         self.finish_plot(fig, ax, self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png",
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
-                         "F resolution = " + str(self.f_span) + " " + self.reader.get_axis_units()[0])
+                         "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0])
 
     def avg_values_plot(self):
         """
@@ -286,7 +288,7 @@ class FSVRAnalysis:
         self.finish_plot(fig, ax, self.reader.get_filename() + "_avg_" + str(self.data_points) + ".png",
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
-                         "F resolution = " + str(self.f_span) + " " + self.reader.get_axis_units()[0] + '\n' +
+                         "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "Ratio = " + str(occupation_ratio) + "%")
 
     def last_frame_plot(self):
