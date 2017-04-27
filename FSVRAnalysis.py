@@ -250,8 +250,11 @@ class FSVRAnalysis:
         # set axis labels
         plt.xlabel('Delta time')
         plt.ylabel('CDF')
+        axes = plt.gca()
+        # set limits
+        axes.set_xlim([ares[0], ares[len(ares)-1]])
+        axes.set_ylim([0, 1])
         # plot the 1 porbability line
-        plt.plot(ares, [1 for i in range(len(ares))], 'y--')
         plt.plot(ares, cum_ares)
         plt.savefig(self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png")
 
