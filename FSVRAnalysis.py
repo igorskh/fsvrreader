@@ -263,7 +263,8 @@ class FSVRAnalysis:
         self.finish_plot(fig, ax, self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png",
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
-                         "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0])
+                         "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
+                         "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0])
 
     def avg_values_plot(self):
         """
@@ -289,6 +290,7 @@ class FSVRAnalysis:
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
                          "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
+                         "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "Ratio = " + str(occupation_ratio) + "%")
 
     def last_frame_plot(self):
