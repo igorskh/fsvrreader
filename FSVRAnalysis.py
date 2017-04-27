@@ -109,6 +109,7 @@ class FSVRAnalysis:
                     axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n") if legend.count("\n") > 1 else 1),
                     legend, bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
         if filename is None:
+            print("?")
             plt.show()
         else:
             plt.savefig(filename)
@@ -228,7 +229,7 @@ class FSVRAnalysis:
             result.append(sum(list(self.reader.get_last_frame()['Data'].values()))/cnt)
         return result
 
-    def plot_filtering_statistic(self):
+    def plot_filtering_statistic(self, save=True):
         """
         Plots filtered values statistic
         :return: 
@@ -236,6 +237,8 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to perform an analysis")
             return False
+        figure_fname = self.reader.get_filename() + "_threshold_statistic" + \
+                       str(self.data_points) + ".png" if save else None
         # start from the 0 frame
         self.reader.reopen_file()
         # get filtering statistic
@@ -246,12 +249,13 @@ class FSVRAnalysis:
         ax.plot([self.threshold for i in range(len(td))], 'b-')
         # plot filtered values
         ax.plot(td, "ro")
-        self.finish_plot(fig, ax, self.reader.get_filename() + "_threshold_statistic" + str(self.data_points) + ".png")
+        self.finish_plot(fig, ax, figure_fname)
 
-    def plot_cdf(self):
+    def plot_cdf(self, save=True):
         """
         :return: 
         """
+        figure_fname = self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png" if save else None
         result = self.avg_values()
         # delta time points
         ares = []
@@ -271,13 +275,13 @@ class FSVRAnalysis:
         fig, ax = self.init_plot("Delta time (s)", "CDF",
                                  "Carrier = " + str(self.freq) + " " + self.reader.get_axis_units()[0])
         plt.plot(ares, cum_ares)
-        self.finish_plot(fig, ax, self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png",
+        self.finish_plot(fig, ax, figure_fname,
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
                          "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0])
 
-    def plot_avg_values(self):
+    def plot_avg_values(self, save=True):
         """
         Plots averaged values over the data frames
         :return: 
@@ -285,6 +289,7 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to do take an average")
             return False
+        figure_fname = self.reader.get_filename() + "_avg_" + str(self.data_points) + ".png" if save else None
         # get averaged values
         avg_eval = self.avg_values()
 
@@ -297,28 +302,30 @@ class FSVRAnalysis:
         ax.plot(self.timeline, avg_eval, 'ro')
         # plot horizontal threshold line
         ax.plot(self.timeline, [self.threshold for i in range(self.data_points)], 'b-')
-        self.finish_plot(fig, ax, self.reader.get_filename() + "_avg_" + str(self.data_points) + ".png",
+        self.finish_plot(fig, ax, figure_fname,
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
                          "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "Occupation Ratio = " + str(occupation_ratio) + "%")
 
-    def plot_last_frame(self):
+    def plot_last_frame(self, save=True):
         """
         Plots on the graph the last frame
         :return: 
         """
         # get last frame data
         frame = self.reader.get_last_frame()
+        # figure filename
+        figure_fname = self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png" if save else None
 
         fig, ax = self.init_plot(self.reader.get_axis_units()[0], self.reader.get_axis_units()[1],
                        "Frame #" + str(frame['Frame']) + " at " + str(frame['Timestamp']))
         ax.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
-        self.finish_plot(fig, ax, self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png",
+        self.finish_plot(fig, ax, figure_fname,
                          "Carrier = "+str(self.freq)+" "+self.reader.get_axis_units()[0])
 
-    def plot_frame(self):
+    def plot_frame(self, save=True):
         """
         Plots set self.data_points frame
         :return: 
@@ -328,7 +335,7 @@ class FSVRAnalysis:
         # go though the data points
         for i in range(self.data_points):
             self.reader.read_frame()
-        self.plot_last_frame()
+        self.plot_last_frame(save)
 
     def __init__(self, reader):
         """
