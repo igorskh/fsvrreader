@@ -247,7 +247,7 @@ class FSVRAnalysis:
         plt.xlabel('Delta time')
         plt.ylabel('CDF')
         plt.plot(ares, cum_ares)
-        plt.savefig(self.reader.get_filename() + "_cfd.png")
+        plt.savefig(self.reader.get_filename() + "_cdf.png")
 
 
     def avg_values_plot(self):
