@@ -11,6 +11,7 @@ April 2017
 import matplotlib.pyplot as plt
 import numpy as np
 import warnings
+import csv
 
 
 class FSVRAnalysis:
@@ -29,6 +30,7 @@ class FSVRAnalysis:
     end_ts = 0.0  #: float: end timestamp
     duration = 0.0  #: float: sample duration from the first to the last data frame
     timeline = []
+    thresholds = []
 
     @property
     def get_threshold(self):
@@ -37,6 +39,15 @@ class FSVRAnalysis:
         :return: float: current threshold
         """
         return self.threshold
+
+    @property
+    def get_thresholds(self):
+        """
+        Returns threshold
+        :return: float: current threshold
+        """
+        return self.thresholds
+
 
     @property
     def get_data_points(self):
@@ -54,6 +65,21 @@ class FSVRAnalysis:
         :return: 
         """
         self.threshold = value
+        self.set_thresholds([value])
+
+    def set_thresholds(self, values, self_index=None):
+        """
+        Sets a threshold levels
+        :param value: list: threshold levels
+        :return: 
+        """
+        if self_index is None or self_index < 0:
+            self_index = 0
+        elif self_index >= len(values):
+            self_index = len(values) - 1
+        self.threshold = values[self_index]
+        self.thresholds = sorted(values)
+
 
     def set_data_points(self, value):
         """
@@ -250,8 +276,83 @@ class FSVRAnalysis:
         ax.plot(td, "ro")
         self.finish_plot(fig, ax, figure_fname)
 
+    def get_markov_state(self, value, zero_state=False):
+        """
+        Calculates and returns state number according to the value and the position between thresholds
+        |
+        |       state 3
+        |
+        --------- threshold 0 (highest) -----------
+        |       state 2
+        |
+        --------- threshold n-1 ------------------
+        |       state 1 
+        |
+        --------- threshold n (lowest) -----------
+        |          state 0 
+        |      (can be assigned only when zero_state is True, otherwise not used)
+        |
+        :param value: 
+        :return: 
+        """
+        state = 0
+        last_threshold = None
+        for threshold in self.thresholds[0:]:
+            if last_threshold is not None:
+                if last_threshold < value <= threshold:
+                    return state
+            elif zero_state:
+                if value <= threshold:
+                    return state
+            state += 1
+            last_threshold = threshold
+        if value > self.thresholds[-1]:
+            return state
+        return False
+
+    def generate_markovs_transitions(self):
+        """
+        Calculates Markov chain transitions
+        :return: 
+        """
+        if self.reader.get_data_frames_amount() < 2:
+            print("At least 2 data frames are needed to do take an average")
+            return False
+        markovs_transition_table = np.zeros([len(self.thresholds)+1, len(self.thresholds)+1])
+        result = self.avg_values()
+        # last time point to calc delta
+        last_state = -1
+        for i in range(self.get_data_points):
+            current_state = self.get_markov_state(result[i])
+            if current_state is not False:
+                if not last_state == -1:
+                    markovs_transition_table[last_state][current_state] += 1
+                last_state = current_state
+        return markovs_transition_table
+
+    def save_markov_transitions(self):
+        """
+        Calculates Markov chain transitions and saves it to CSV
+        :return: 
+        """
+        csv_fname = self.reader.get_filename() + "_markovs_" + str(self.data_points)+".csv"
+        markovs_transition_table = self.generate_markovs_transitions()
+        with open(csv_fname, 'w', newline='') as csvfile:
+            spamwriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            spamwriter.writerow(["carrier", self.freq, self.reader.get_axis_units()[0]])
+            spamwriter.writerow(["f_resolution", self.f_resolution, self.reader.get_axis_units()[0]])
+            spamwriter.writerow(["data_points", self.get_data_points,"point(s)"])
+            # write thresholds
+            for i in range(len(self.thresholds)):
+                spamwriter.writerow(["threshold"+str(i), self.thresholds[i],self.reader.get_axis_units()[1]])
+            # write Markovs states
+            for row in markovs_transition_table:
+                spamwriter.writerow(row)
+        return markovs_transition_table
+
     def plot_cdf(self, save=True):
         """
+        Plots cumulative distribution function for delta time of time frames
         :return: 
         """
         figure_fname = self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png" if save else None
@@ -300,7 +401,9 @@ class FSVRAnalysis:
         # plot averaged levels
         ax.plot(self.timeline, avg_eval, 'ro')
         # plot horizontal threshold line
-        ax.plot(self.timeline, [self.threshold for i in range(self.data_points)], 'b-')
+        for threshold in self.thresholds:
+            mode = 'b-' if threshold==self.threshold else 'y--'
+            ax.plot(self.timeline, [threshold for i in range(self.data_points)], mode)
         self.finish_plot(fig, ax, figure_fname,
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
