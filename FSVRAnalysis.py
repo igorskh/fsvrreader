@@ -107,7 +107,7 @@ class FSVRAnalysis:
         if not legend is None:
             ax.text(axis.get_xlim()[0] + xr * 0.03,
                     axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n") if legend.count("\n") > 1 else 1),
-                    legend, bbox={'facecolor': 'blue', 'alpha': 0.2, 'pad': 5})
+                    legend, bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 5})
         if filename is None:
             print("?")
             plt.show()
