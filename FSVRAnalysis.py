@@ -109,7 +109,6 @@ class FSVRAnalysis:
                     axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n") if legend.count("\n") > 1 else 1),
                     legend, bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 5})
         if filename is None:
-            print("?")
             plt.show()
         else:
             plt.savefig(filename)
