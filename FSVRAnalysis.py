@@ -266,7 +266,7 @@ class FSVRAnalysis:
             print("At least 2 data frames are needed to perform an analysis")
             return False
         figure_fname = self.reader.get_filename() + "_threshold_statistic" + \
-                       str(self.data_points) + ".png" if save else None
+            str(self.data_points) + ".png" if save else None
         # start from the 0 frame
         self.reader.reopen_file()
         # get filtering statistic
@@ -323,7 +323,7 @@ class FSVRAnalysis:
             return False
         if not self.info_initialized:
             self.get_info()
-        markovs_transition_table = np.zeros([len(self.thresholds)+1, len(self.thresholds)+1])
+        markovs_transition_table = np.zeros([len(self.thresholds)+1, len(self.thresholds)+1], dtype=int)
         result = self.avg_values()
         # last time point to calc delta
         last_state = -1
@@ -398,7 +398,7 @@ class FSVRAnalysis:
         # get averaged values
         avg_eval = self.avg_values()
 
-        values_over_threshold = sum(i > self.threshold for i in avg_eval)
+        values_over_threshold = sum(avg_value > self.threshold for avg_value in avg_eval)
         occupation_ratio = round(values_over_threshold*100 / len(avg_eval), 2)
         # initialize plot objects
         fig, ax = self.init_plot("Time (s)", "Level ("+self.reader.get_axis_units()[1]+")",
@@ -427,7 +427,7 @@ class FSVRAnalysis:
         figure_fname = self.reader.get_filename() + "_figure_fr" + str(frame['Frame']) + ".png" if save else None
 
         fig, ax = self.init_plot(self.reader.get_axis_units()[0], self.reader.get_axis_units()[1],
-                       "Frame #" + str(frame['Frame']) + " at " + str(frame['Timestamp']))
+            "Frame #" + str(frame['Frame']) + " at " + str(frame['Timestamp']))
         ax.plot(list(frame['Data'].keys()), list(frame['Data'].values()), 'ro')
         self.finish_plot(fig, ax, figure_fname,
                          "Carrier = "+str(self.freq)+" "+self.reader.get_axis_units()[0])
