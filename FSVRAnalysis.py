@@ -22,7 +22,7 @@ class FSVRAnalysis:
     info_initialized = False #: bool: flag that get_info() method was executed
     threshold = 0.0  #: float: threshold level for analysis
     filter_mask = []  #: list: which frequencies will be used for analysis
-    data_points = 10  #: int: number of points to be analysed
+    data_points = 0  #: int: number of points to be analysed
     f_span = 0.0  #: float: frequency span
     f_resolution = 0.0 #: float: frequency resolution
     freq = 0.0  #: float: central frequency
@@ -151,6 +151,9 @@ class FSVRAnalysis:
         # start and end timestamp
         self.start_ts = 0
         self.end_ts = 0
+        # if number of data points is not set
+        if self.get_data_points <= 0:
+            self.set_data_points(0)
         # go though the data points
         for i in range(self.data_points):
             self.reader.read_frame()
@@ -318,6 +321,8 @@ class FSVRAnalysis:
         if self.reader.get_data_frames_amount() < 2:
             print("At least 2 data frames are needed to do take an average")
             return False
+        if not self.info_initialized:
+            self.get_info()
         markovs_transition_table = np.zeros([len(self.thresholds)+1, len(self.thresholds)+1])
         result = self.avg_values()
         # last time point to calc delta
@@ -335,8 +340,8 @@ class FSVRAnalysis:
         Calculates Markov chain transitions and saves it to CSV
         :return: 
         """
-        csv_fname = self.reader.get_filename() + "_markovs_" + str(self.data_points)+".csv"
         markovs_transition_table = self.generate_markovs_transitions()
+        csv_fname = self.reader.get_filename() + "_markovs_" + str(self.data_points)+".csv"
         with open(csv_fname, 'w', newline='') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
             spamwriter.writerow(["carrier", self.freq, self.reader.get_axis_units()[0]])
