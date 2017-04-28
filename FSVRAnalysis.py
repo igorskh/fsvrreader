@@ -313,7 +313,7 @@ class FSVRAnalysis:
             return state
         return False
 
-    def generate_markovs_transitions(self):
+    def generate_markovs_transitions(self, zero_state=False):
         """
         Calculates Markov chain transitions
         :return: 
@@ -328,19 +328,19 @@ class FSVRAnalysis:
         # last time point to calc delta
         last_state = -1
         for i in range(self.get_data_points):
-            current_state = self.get_markov_state(result[i])
+            current_state = self.get_markov_state(result[i], zero_state)
             if current_state is not False:
                 if not last_state == -1:
                     markovs_transition_table[last_state][current_state] += 1
                 last_state = current_state
         return markovs_transition_table
 
-    def save_markov_transitions(self):
+    def save_markov_transitions(self, zero_state=False):
         """
         Calculates Markov chain transitions and saves it to CSV
         :return: 
         """
-        markovs_transition_table = self.generate_markovs_transitions()
+        markovs_transition_table = self.generate_markovs_transitions(zero_state)
         csv_fname = self.reader.get_filename() + "_markovs_" + str(self.data_points)+".csv"
         with open(csv_fname, 'w', newline='') as csvfile:
             spamwriter = csv.writer(csvfile, delimiter=';', quotechar='|', quoting=csv.QUOTE_MINIMAL)
