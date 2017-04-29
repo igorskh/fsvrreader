@@ -130,9 +130,10 @@ class FSVRAnalysis:
         yr = abs(axis.get_ylim()[1] - axis.get_ylim()[0])
         xr = abs(axis.get_xlim()[1] - axis.get_xlim()[0])
         # plot legend on a figure
-        if not legend is None:
-            ax.text(axis.get_xlim()[0] + xr * 0.03,
-                    axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n") if legend.count("\n") > 1 else 1),
+        if legend is not None:
+            legendx = axis.get_xlim()[1] - xr * 0.4
+            legendy = axis.get_ylim()[0] + 0.06 * yr  # axis.get_ylim()[1] - 0.06 * yr * (legend.count("\n") if legend.count("\n") > 1 else 1)
+            ax.text(legendx, legendy,
                     legend, bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 5})
         if filename is None:
             plt.show()
@@ -360,8 +361,8 @@ class FSVRAnalysis:
         Plots cumulative distribution function for delta time of time frames
         :return: 
         """
-        figure_fname = self.reader.get_filename() + "_cdf_" + str(self.data_points)+".png" if save else None
         result = self.avg_values()
+        figure_fname = self.reader.get_filename() + "_cdf_" + str(self.data_points) + ".png" if save else None
         # delta time points
         ares = []
         # last time point to calc delta
