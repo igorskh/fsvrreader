@@ -238,6 +238,22 @@ class FSVRAnalysis:
                 result[key] = val
         return result
 
+    def avg_std_dev(self):
+        vals = list(self.values_over_threshold().values())
+        mn = np.mean(vals)
+        res = 0
+        for val in vals:
+            res += (mn-val)**2
+        return mn, np.sqrt(res)
+
+    def plot_avg_std_dev(self, mns, stds, save=True):
+        figure_fname = self.reader.get_filename() + "_std_dev_" + \
+            str(self.data_points) + ".png" if save else None
+        fig, ax = self.init_plot("Data Frame", "Level", "Standard deviation")
+        # plot the threshold line
+        ax.plot(mns, 'b-')
+        self.finish_plot(fig, ax, figure_fname)
+
     def avg_values(self):
         """
         Find average over the all data frame values
