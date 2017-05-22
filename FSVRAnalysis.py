@@ -244,15 +244,7 @@ class FSVRAnalysis:
         res = 0
         for val in vals:
             res += (mn-val)**2
-        return mn, np.sqrt(res)
-
-    def plot_avg_std_dev(self, mns, stds, save=True):
-        figure_fname = self.reader.get_filename() + "_std_dev_" + \
-            str(self.data_points) + ".png" if save else None
-        fig, ax = self.init_plot("Data Frame", "Level", "Standard deviation")
-        # plot the threshold line
-        ax.plot(mns, 'b-')
-        self.finish_plot(fig, ax, figure_fname)
+        return mn, np.sqrt(res/len(vals))
 
     def avg_values(self):
         """
@@ -402,6 +394,17 @@ class FSVRAnalysis:
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
                          "F resolution = " + str(self.f_resolution) + " " + self.reader.get_axis_units()[0] + '\n' +
                          "F span = " + str(self.f_span) + " " + self.reader.get_axis_units()[0])
+
+    def plot_avg_std_dev(self, mns, stds, save=True):
+        stds = np.array(stds)/2
+        mns = np.array(mns)
+        figure_fname = self.reader.get_filename() + "_std_dev_" + \
+            str(self.data_points) + ".png" if save else None
+        fig, ax = self.init_plot("Data Frame", "Level", "Standard deviation")
+        # plot the threshold line
+        ax.plot(mns, 'b-')
+        ax.errorbar(range(len(mns)), mns, yerr=stds, fmt='o')
+        self.finish_plot(fig, ax, figure_fname)
 
     def plot_avg_values(self, save=True):
         """
