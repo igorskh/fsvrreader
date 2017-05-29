@@ -239,6 +239,11 @@ class FSVRAnalysis:
         return result
 
     def avg_std_dev(self):
+        """
+        calculates standard deviation over the maximum values over the threshold 
+        :return: float: mean value
+                 float: standard deviation     
+        """
         vals = list(self.values_over_threshold().values())
         mn = np.mean(vals)
         res = 0
