@@ -170,7 +170,7 @@ class FSVRAnalysis:
         self.duration = round(self.end_ts - self.start_ts,3)
         self.timeline = np.linspace(0, self.duration, self.data_points)
         self.info_initialized = True
-        return True
+        return self.info_initialized
 
     def filtering_statistic_analyze(self):
         """
