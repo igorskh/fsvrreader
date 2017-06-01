@@ -369,6 +369,17 @@ class FSVRAnalysis:
                 spamwriter.writerow(row)
         return markovs_transition_table
 
+    def prepare_avg_std_dev(self, files, folder=""):
+        avgs = []
+        devs = []
+        for file in files:
+            self.reader.reopen_file(folder + file)
+            self.set_data_points(1000)
+            avg, dev = self.avg_std_dev()
+            avgs.append(avg)
+            devs.append(dev)
+        return avgs, devs
+
     def plot_cdf(self, save=True):
         """
         Plots cumulative distribution function for delta time of time frames
