@@ -23,16 +23,18 @@ class FSVRReader:
     file = None  #: object: file object
     header = {}  #: dict: header dictionary
 
-    def __init__(self, filename):
+    def __init__(self, filename=None):
         """
         :param filename: path to the dat file
         """
-        if os.path.isfile(filename):
-            self.file_path = filename
-            self.file = open(self.file_path, "r")
-            self.read_header()
-        else:
-            raise FileNotFoundError("File " + filename + " does not exist")
+        if filename is not None:
+            self.reopen_file(filename)
+        # if os.path.isfile(filename):
+        #     self.file_path = filename
+        #     self.file = open(self.file_path, "r")
+        #     self.read_header()
+        # else:
+        #     raise FileNotFoundError("File " + filename + " does not exist")
 
     def read_line(self):
         """
@@ -100,15 +102,21 @@ class FSVRReader:
         """
         return self.file_path
 
-    def reopen_file(self):
+    def reopen_file(self, filename=None):
         """ Reopens file to the position of first frame, skips header
         :return: object: File object
         """
-        if self.file is None:
-            raise RuntimeError("File has not been initialized")
-        self.file.close()
-        self.file = open(self.file_path, "r")
-        self.file.seek(self.header_end)
+        # if not new file_path provided reopen current file
+        if filename is None:
+            filename = self.file_path
+        if self.file is not None:
+            self.file.close()
+        if os.path.isfile(filename):
+            self.file_path = filename
+            self.file = open(filename, "r")
+            self.read_header()
+        else:
+            raise FileNotFoundError("File " + filename + " does not exist")
         return self.file
 
     def read_frame(self):
