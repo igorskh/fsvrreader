@@ -369,12 +369,12 @@ class FSVRAnalysis:
                 spamwriter.writerow(row)
         return markovs_transition_table
 
-    def prepare_avg_std_dev(self, files, folder=""):
+    def prepare_avg_std_dev(self, files, data_points, folder=""):
         avgs = []
         devs = []
         for file in files:
             self.reader.reopen_file(folder + file)
-            self.set_data_points(1000)
+            self.set_data_points(data_points)
             avg, dev = self.avg_std_dev()
             avgs.append(avg)
             devs.append(dev)
