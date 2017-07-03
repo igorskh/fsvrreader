@@ -397,14 +397,16 @@ class FSVRAnalysis:
                 ares.append(self.timeline[i] - last_time_point)
                 last_time_point = self.timeline[i]
         # sort delta time points
-        ares = sorted(ares)
+        ares = sorted(ares[1:])
         # normalize data
         ares1 = ares / np.sum(ares)
         # get the cumulative sum
         cum_ares = np.cumsum(ares1)
         fig, ax = self.init_plot("Delta time (s)", "CDF",
                                  "Carrier = " + str(self.freq) + " " + self.reader.get_axis_units()[0])
-        plt.plot(ares, cum_ares)
+        plt.step(ares, cum_ares)
+        # axes = plt.gca()
+        # axes.set_xlim([0, ares[len(ares)-1]])
         self.finish_plot(fig, ax, figure_fname,
                          "Duration = " + str(self.duration) + " s\n" +
                          "Sweep time = " + str(self.reader.get_sweep_time()) + " s\n" +
